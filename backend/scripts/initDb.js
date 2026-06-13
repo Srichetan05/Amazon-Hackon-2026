@@ -58,6 +58,13 @@ CREATE TABLE IF NOT EXISTS grading_results (
   grade VARCHAR(50) NOT NULL, -- 'new', 'used', 'damaged'
   confidence FLOAT,
   description TEXT, -- Stores specific damageLevel like 'MAJOR', 'MINOR', 'NONE'
+  detailed_grade VARCHAR(100),
+  condition_summary TEXT,
+  visible_issues TEXT[],
+  recommended_action VARCHAR(100),
+  risk_level VARCHAR(50),
+  repairability_score DECIMAL,
+  value_recovery_score DECIMAL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -413,6 +413,13 @@ app.get('/api/lifecycle/:id', async (req, res) => {
         gr.grade,
         gr.confidence,
         gr.description AS "damageLevel",
+        gr.detailed_grade AS "detailedGrade",
+        gr.condition_summary AS "conditionSummary",
+        gr.visible_issues AS "visibleIssues",
+        gr.recommended_action AS "recommendedAction",
+        gr.risk_level AS "riskLevel",
+        gr.repairability_score AS "repairabilityScore",
+        gr.value_recovery_score AS "valueRecoveryScore",
         rd.decision,
         rd.local_cost AS "localCost",
         rd.warehouse_cost AS "warehouseCost",
@@ -475,6 +482,269 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', database: 'postgresql', timestamp: new Date().toISOString() });
 });
 
+// Auto-alter database schema if table columns are missing
+async function ensureDatabaseSchema() {
+  const client = await pool.connect();
+  try {
+    console.log('Running database schema migration...');
+    await client.query(`
+      ALTER TABLE grading_results ADD COLUMN IF NOT EXISTS detailed_grade VARCHAR(100);
+      ALTER TABLE grading_results ADD COLUMN IF NOT EXISTS condition_summary TEXT;
+      ALTER TABLE grading_results ADD COLUMN IF NOT EXISTS visible_issues TEXT[];
+      ALTER TABLE grading_results ADD COLUMN IF NOT EXISTS recommended_action VARCHAR(100);
+      ALTER TABLE grading_results ADD COLUMN IF NOT EXISTS risk_level VARCHAR(50);
+      ALTER TABLE grading_results ADD COLUMN IF NOT EXISTS repairability_score DECIMAL;
+      ALTER TABLE grading_results ADD COLUMN IF NOT EXISTS value_recovery_score DECIMAL;
+    `);
+    console.log('Database schema migration completed successfully.');
+  } catch (err) {
+    console.error('Error running database migrations:', err);
+  } finally {
+    client.release();
+  }
+}
+
+// AI Product Visual Inspection Engine
+app.post('/api/grade-product', async (req, res) => {
+  try {
+    const { image, name, category } = req.body;
+    if (!image || !name) {
+      return res.status(400).json({ error: 'Product name and image are required.' });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    const isDummyKey = !apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE' || apiKey.trim() === '';
+
+    if (isDummyKey) {
+      // Return a simulated high-quality AI inspection result immediately for the demo
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const isDamaged = name.toLowerCase().includes('shoe') || name.toLowerCase().includes('damaged') || Math.random() > 0.5;
+      const mockResult = {
+        grade: isDamaged ? 'damaged' : 'used',
+        confidence: parseFloat((0.82 + Math.random() * 0.15).toFixed(2)),
+        condition_summary: isDamaged 
+          ? `Visual analysis of "${name}" detects structural damage/tear indicators and opened packaging.`
+          : `Product "${name}" appears functional with light cosmetic scuffs and opened box.`,
+        visible_issues: isDamaged 
+          ? ['localized damage/wear', 'opened retail box packaging']
+          : ['opened box packaging', 'minor cosmetic scuffs'],
+        recommended_action: isDamaged ? 'repair' : 'resell_local',
+        risk_level: isDamaged ? 'medium' : 'low',
+        detailed_grade: isDamaged ? 'damaged_repairable' : 'lightly_used',
+        repairability_score: isDamaged ? 55 : 88,
+        value_recovery_score: isDamaged ? 40 : 75
+      };
+      return res.json(mockResult);
+    }
+
+    // Parse base64 content
+    let base64Data = image;
+    let mimeType = 'image/jpeg';
+    if (image.startsWith('data:')) {
+      const match = image.match(/^data:([^;]+);base64,(.*)$/);
+      if (match) {
+        mimeType = match[1];
+        base64Data = match[2];
+      }
+    }
+
+    const promptText = `
+You are an expert Amazon Quality Assurance inspector. Analyze the provided returned product photo(s).
+Product Name: "${name}"
+Category: "${category || '📦 Others'}"
+
+Perform a visual grading inspection. Identify visible defects, scratches, open seals, dented corners, missing elements, or structural wear. Compare the item against its expected category standards (electronics: screen cracks, ports, dents, missing parts; apparel: stains, tears, signs of wear; appliances: body damage, visible dust, missing parts).
+
+You MUST output your result in JSON mode matching this schema:
+{
+  "grade": "new" | "used" | "damaged",
+  "confidence": float (0.0 to 1.0),
+  "condition_summary": "Short explanation of visible condition...",
+  "visible_issues": ["scratches", "opened packaging", ...],
+  "recommended_action": "resell_local" | "repair" | "recycle" | "warehouse_return",
+  "risk_level": "low" | "medium" | "high",
+  "detailed_grade": "new_sealed" | "new_open_box" | "lightly_used" | "used" | "heavily_used" | "damaged_repairable" | "damaged_non_repairable",
+  "repairability_score": integer (0 to 100),
+  "value_recovery_score": integer (0 to 100)
+}
+`;
+
+    const body = {
+      contents: [{
+        parts: [
+          { text: promptText },
+          {
+            inlineData: {
+              mimeType: mimeType,
+              data: base64Data
+            }
+          }
+        ]
+      }],
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: "OBJECT",
+          properties: {
+            grade: { type: "STRING", enum: ["new", "used", "damaged"] },
+            confidence: { type: "NUMBER" },
+            condition_summary: { type: "STRING" },
+            visible_issues: { type: "ARRAY", items: { type: "STRING" } },
+            recommended_action: { type: "STRING", enum: ["resell_local", "repair", "recycle", "warehouse_return"] },
+            risk_level: { type: "STRING", enum: ["low", "medium", "high"] },
+            detailed_grade: { type: "STRING", enum: ["new_sealed", "new_open_box", "lightly_used", "used", "heavily_used", "damaged_repairable", "damaged_non_repairable"] },
+            repairability_score: { type: "INTEGER" },
+            value_recovery_score: { type: "INTEGER" }
+          },
+          required: ["grade", "confidence", "condition_summary", "visible_issues", "recommended_action", "risk_level", "detailed_grade", "repairability_score", "value_recovery_score"]
+        }
+      }
+    };
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini API returned status ${response.status}: ${errorText}`);
+    }
+
+    const responseJson = await response.json();
+    const resultText = responseJson.candidates?.[0]?.content?.parts?.[0]?.text;
+    const resultObj = JSON.parse(resultText);
+    res.json(resultObj);
+  } catch (err) {
+    console.error('Gemini Inspection Error:', err);
+    res.status(500).json({ error: err.message || 'Inspection failed' });
+  }
+});
+
+// Save inspection report to DB & create passport link
+app.post('/api/grading-results', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const report = req.body;
+    await client.query('BEGIN');
+
+    // 1. Find or insert product
+    let productId;
+    const prodRes = await client.query('SELECT id FROM products WHERE name = $1 LIMIT 1', [report.name]);
+    if (prodRes.rows.length > 0) {
+      productId = prodRes.rows[0].id;
+    } else {
+      const sku = `SKU-${Date.now()}`;
+      const insProdRes = await client.query(`
+        INSERT INTO products (sku, name, category, manufacturer)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+      `, [sku, report.name, report.category || '📦 Others', report.manufacturer || 'Unknown']);
+      productId = insProdRes.rows[0].id;
+    }
+
+    // 2. Create product instance
+    const serialNumber = `SN-AI-${Math.floor(1000 + Math.random() * 9000)}`;
+    const publicId = `PASS-AI-${Math.floor(100000 + Math.random() * 900000)}`;
+    const createdDate = new Date();
+    
+    // Choose a default location based on category
+    const locRes = await client.query('SELECT id FROM locations WHERE type = $1 LIMIT 1', ['delivery_point']);
+    const defaultLocationId = locRes.rows.length > 0 ? locRes.rows[0].id : null;
+
+    const instRes = await client.query(`
+      INSERT INTO product_instances (product_id, serial_number, public_id, packaging_date, delivery_date, current_status, current_location_id, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      RETURNING id
+    `, [
+      productId,
+      serialNumber,
+      publicId,
+      new Date(createdDate.getTime() - 8 * 24 * 60 * 60 * 1000), // packaged 8 days ago
+      new Date(createdDate.getTime() - 5 * 24 * 60 * 60 * 1000), // delivered 5 days ago
+      'graded',
+      defaultLocationId,
+      createdDate
+    ]);
+    const instanceId = instRes.rows[0].id;
+
+    // 3. Insert grading result
+    await client.query(`
+      INSERT INTO grading_results (
+        product_instance_id, grade, confidence, description,
+        detailed_grade, condition_summary, visible_issues,
+        recommended_action, risk_level, repairability_score,
+        value_recovery_score, created_at
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `, [
+      instanceId,
+      report.grade.toLowerCase(),
+      report.confidence,
+      report.condition_summary || 'Cosmetics inspection complete.',
+      report.detailed_grade,
+      report.condition_summary,
+      report.visible_issues || [],
+      report.recommended_action,
+      report.risk_level,
+      report.repairability_score || 0,
+      report.value_recovery_score || 0,
+      createdDate
+    ]);
+
+    // 4. Create routing decision
+    let decisionVal = 'local_delivery_point';
+    if (report.recommended_action === 'warehouse_return') {
+      decisionVal = 'warehouse';
+    } else if (report.recommended_action === 'recycle') {
+      decisionVal = 'direct_recycle';
+    }
+
+    await client.query(`
+      INSERT INTO routing_decisions (product_instance_id, decision, estimated_resale_value, decided_at)
+      VALUES ($1, $2, $3, $4)
+    `, [instanceId, decisionVal, report.estimated_resale_value || 0, createdDate]);
+
+    // 5. Add event logs
+    const pkgOffset = new Date(createdDate.getTime() - 8 * 24 * 60 * 60 * 1000);
+    const delOffset = new Date(createdDate.getTime() - 5 * 24 * 60 * 60 * 1000);
+    const retOffset = new Date(createdDate.getTime() - 2 * 24 * 60 * 60 * 1000);
+
+    await client.query(`
+      INSERT INTO product_events (product_instance_id, event_type, event_time, reason)
+      VALUES ($1, 'packed', $2, 'Item packed and sealed at central warehouse node')
+    `, [instanceId, pkgOffset]);
+
+    await client.query(`
+      INSERT INTO product_events (product_instance_id, event_type, event_time, reason)
+      VALUES ($1, 'delivered', $2, 'Delivered to customer doorstep')
+    `, [instanceId, delOffset]);
+
+    await client.query(`
+      INSERT INTO product_events (product_instance_id, event_type, event_time, reason)
+      VALUES ($1, 'returned', $2, 'Customer returns: Opened box cosmetic check')
+    `, [instanceId, retOffset]);
+
+    await client.query(`
+      INSERT INTO product_events (product_instance_id, event_type, event_time, reason)
+      VALUES ($1, 'graded', $2, $3)
+    `, [instanceId, createdDate, `Visual Inspection completed: ${report.detailed_grade.toUpperCase().replace('_', ' ')}. ${report.condition_summary}`]);
+
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, id: instanceId, publicId });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Failed to save grading results:', err);
+    res.status(500).json({ error: 'Failed to save grading results' });
+  } finally {
+    client.release();
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  ensureDatabaseSchema();
 });

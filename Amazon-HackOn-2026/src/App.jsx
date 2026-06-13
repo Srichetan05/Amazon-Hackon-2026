@@ -3,6 +3,7 @@ import AppShell from './layout/AppShell';
 import SmartRoutingPage from './pages/SmartRoutingPage';
 import PlaceholderPage from './pages/PlaceholderPage';
 import LifecyclePage from './pages/LifecyclePage';
+import GradingPage from './pages/GradingPage';
 
 /**
  * FEATURES — the single source of truth for top-level navigation.
@@ -29,7 +30,7 @@ const FEATURES = [
     key: 'product-grading',
     label: 'Product Grading',
     icon: '🔍',
-    component: (props) => <PlaceholderPage feature={props.feature} />,
+    component: GradingPage,
   },
   {
     key: 'lifecycle-card',

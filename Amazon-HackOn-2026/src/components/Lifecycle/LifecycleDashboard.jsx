@@ -224,9 +224,15 @@ export default function LifecycleDashboard() {
                       {/* Detailed inspection views for Inspector role */}
                       {currentRole === 'inspector' && ev.type === 'graded' && (
                         <div className={styles.inspectorDetailBox}>
-                          <p><strong>AI Verdict:</strong> {passport.grade.toUpperCase()}</p>
+                          <p><strong>AI Verdict:</strong> {passport.detailedGrade ? passport.detailedGrade.toUpperCase().replace('_', ' ') : passport.grade.toUpperCase()}</p>
                           <p><strong>Confidence Score:</strong> {(passport.confidence * 100).toFixed(1)}%</p>
-                          <p><strong>Detected Defect:</strong> {passport.damageLevel}</p>
+                          <p><strong>Condition Summary:</strong> {passport.conditionSummary || passport.damageLevel}</p>
+                          {passport.visibleIssues && passport.visibleIssues.length > 0 && (
+                            <p><strong>Detected Defects:</strong> {passport.visibleIssues.join(', ')}</p>
+                          )}
+                          {passport.repairabilityScore !== undefined && passport.repairabilityScore !== null && (
+                            <p><strong>Repairability:</strong> {passport.repairabilityScore}% | <strong>Value Recovery:</strong> {passport.valueRecoveryScore}%</p>
+                          )}
                         </div>
                       )}
 
