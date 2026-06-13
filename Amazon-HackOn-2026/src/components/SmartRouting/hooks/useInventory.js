@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { LOCAL_RESALE_WINDOW_DAYS, resaleInventory } from '../data/mockData';
 
 const STORAGE_KEY = 'smart_routing_inventory';
@@ -55,6 +55,25 @@ function buildInitialInventory() {
 export function useInventory() {
   const [inventory, setInventory] = useState(() => buildInitialInventory());
 
+  // Fetch inventory from backend on mount
+  useEffect(() => {
+    let active = true;
+    async function fetchInventory() {
+      try {
+        const res = await fetch('http://localhost:5000/api/inventory');
+        if (!res.ok) throw new Error('API server error');
+        const data = await res.json();
+        if (active) {
+          setInventory(data);
+        }
+      } catch (err) {
+        console.warn('Backend server not reachable. Using offline localStorage fallback.', err);
+      }
+    }
+    fetchInventory();
+    return () => { active = false; };
+  }, []);
+
   const addToInventory = useCallback((newItem) => {
     const entry = {
       ...newItem,
@@ -64,16 +83,24 @@ export function useInventory() {
       interestedUsers: [],
     };
 
-    setInventory(prev => {
-      const updated = [...prev, entry];
-      // Persist only user-added items (those with 'inv-user-' prefix)
-      const userItems = updated.filter(i => i.id.startsWith('inv-user-'));
+    // Optimistic state update
+    setInventory(prev => [...prev, entry]);
+
+    // Send post request to backend, falling back to localStorage if offline
+    fetch('http://localhost:5000/api/inventory', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(entry),
+    }).catch(err => {
+      console.warn('Backend save failed. Persisting to localStorage.', err);
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(userItems));
-      } catch {
-        // Ignore storage errors
+        const saved = localStorage.getItem(STORAGE_KEY);
+        const parsed = saved ? JSON.parse(saved) : [];
+        parsed.push(entry);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      } catch (e) {
+        // Ignore localStorage blockages
       }
-      return updated;
     });
 
     return entry;

@@ -1,0 +1,111 @@
+{
+  "inventory": [
+    {
+      "id": "inv-001",
+      "name": "OnePlus 11 5G",
+      "grade": "NEW",
+      "damageLevel": "NONE",
+      "originalPrice": 61999,
+      "discountedPrice": 24800,
+      "daysListed": 4,
+      "deliveryPointId": "dp-1",
+      "deliveryPointName": "Andheri Resale Hub",
+      "city": "Mumbai",
+      "nearbyBuyers": 14,
+      "interestedUsers": [
+        "Rahul M.",
+        "Priya S.",
+        "Amit K."
+      ],
+      "category": "📱 Smartphones",
+      "listedAt": "2026-06-09T15:54:58.383Z"
+    },
+    {
+      "id": "inv-002",
+      "name": "boAt Airdopes 141",
+      "grade": "NEW",
+      "damageLevel": "NONE",
+      "originalPrice": 1499,
+      "discountedPrice": 600,
+      "daysListed": 1,
+      "deliveryPointId": "dp-1",
+      "deliveryPointName": "Andheri Resale Hub",
+      "city": "Mumbai",
+      "nearbyBuyers": 31,
+      "interestedUsers": [
+        "Sneha P.",
+        "Rohit V."
+      ],
+      "category": "🎧 Audio",
+      "listedAt": "2026-06-12T15:54:58.385Z"
+    },
+    {
+      "id": "inv-003",
+      "name": "Kindle Paperwhite (10th Gen)",
+      "grade": "NEW",
+      "damageLevel": "NONE",
+      "originalPrice": 13999,
+      "discountedPrice": 5600,
+      "daysListed": 1,
+      "deliveryPointId": "dp-2",
+      "deliveryPointName": "Powai Quick Sale",
+      "city": "Mumbai",
+      "nearbyBuyers": 9,
+      "interestedUsers": [
+        "Deepa R."
+      ],
+      "category": "📖 E-Readers",
+      "listedAt": "2026-06-12T15:54:58.385Z"
+    },
+    {
+      "id": "inv-004",
+      "name": "Noise ColorFit Pro 4",
+      "grade": "DAMAGED",
+      "damageLevel": "MAJOR",
+      "originalPrice": 4999,
+      "discountedPrice": 1250,
+      "daysListed": 5,
+      "deliveryPointId": "dp-5",
+      "deliveryPointName": "Connaught Place Hub",
+      "city": "Delhi",
+      "nearbyBuyers": 6,
+      "interestedUsers": [],
+      "category": "⌚ Wearables",
+      "listedAt": "2026-06-08T15:54:58.385Z"
+    },
+    {
+      "id": "inv-005",
+      "name": "Apple AirPods (3rd Gen)",
+      "grade": "NEW",
+      "damageLevel": "NONE",
+      "originalPrice": 19900,
+      "discountedPrice": 7960,
+      "daysListed": 2,
+      "deliveryPointId": "dp-6",
+      "deliveryPointName": "Lajpat Nagar Resale",
+      "city": "Delhi",
+      "nearbyBuyers": 22,
+      "interestedUsers": [
+        "Kavya T.",
+        "Manish G.",
+        "Neha B."
+      ],
+      "category": "🎧 Audio",
+      "listedAt": "2026-06-11T15:54:58.385Z"
+    },
+    {
+      "name": "Samsung Galaxy S22",
+      "grade": "NEW",
+      "damageLevel": "NONE",
+      "originalPrice": 58000,
+      "deliveryPointName": "Mumbai Warehouse",
+      "city": "Mumbai",
+      "category": "📱 Smartphones",
+      "type": "WAREHOUSE",
+      "id": "inv-user-1781366277376",
+      "listedAt": "2026-06-13T15:57:57.376Z",
+      "nearbyBuyers": 14,
+      "interestedUsers": []
+    }
+  ]
+}
