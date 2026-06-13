@@ -2,6 +2,7 @@ import { useState } from 'react';
 import AppShell from './layout/AppShell';
 import SmartRoutingPage from './pages/SmartRoutingPage';
 import PlaceholderPage from './pages/PlaceholderPage';
+import LifecyclePage from './pages/LifecyclePage';
 
 /**
  * FEATURES — the single source of truth for top-level navigation.
@@ -16,7 +17,7 @@ import PlaceholderPage from './pages/PlaceholderPage';
  *  label     — text shown in the header tab
  *  icon      — emoji icon shown next to the label
  *  component — the React component to render when this tab is active
- */
+ * */
 const FEATURES = [
   {
     key: 'smart-routing',
@@ -34,12 +35,19 @@ const FEATURES = [
     key: 'lifecycle-card',
     label: 'Lifecycle Card',
     icon: '📋',
-    component: (props) => <PlaceholderPage feature={props.feature} />,
+    component: LifecyclePage,
   },
 ];
 
 export default function App() {
-  const [currentFeature, setCurrentFeature] = useState(FEATURES[0].key);
+  const [currentFeature, setCurrentFeature] = useState(() => {
+    // If a product ID is detected in the URL parameters, auto-navigate to the Digital Passport tab
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('id')) {
+      return 'lifecycle-card';
+    }
+    return FEATURES[0].key;
+  });
 
   const active = FEATURES.find(f => f.key === currentFeature) ?? FEATURES[0];
   const ActiveComponent = active.component;
