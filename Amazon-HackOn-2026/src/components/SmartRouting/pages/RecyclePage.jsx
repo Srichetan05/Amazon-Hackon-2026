@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styles from '../SmartRouting.module.css';
-import { recycleDonationBoxes, LOCAL_RESALE_WINDOW_DAYS } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
 
 const GRADE_COLOR = { NEW: styles.gradeNew, USED: styles.gradeUsed, DAMAGED: styles.gradeDamaged };
 
@@ -10,6 +10,7 @@ const TYPE_CONFIG = {
 };
 
 export default function RecyclePage({ pastWindow }) {
+  const { recycleDonationBoxes, LOCAL_RESALE_WINDOW_DAYS } = useConfig();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredPast = pastWindow.filter(item => {
@@ -36,7 +37,7 @@ export default function RecyclePage({ pastWindow }) {
             still within their {LOCAL_RESALE_WINDOW_DAYS}-day resale window.
           </p>
         </div>
-        <FacilityDirectory />
+        <FacilityDirectory recycleDonationBoxes={recycleDonationBoxes} />
       </div>
     );
   }
@@ -144,7 +145,7 @@ export default function RecyclePage({ pastWindow }) {
         )}
       </div>
 
-      <FacilityDirectory />
+      <FacilityDirectory recycleDonationBoxes={recycleDonationBoxes} />
 
       <div className={styles.card}>
         <div className={styles.infoBanner}>
@@ -161,7 +162,7 @@ export default function RecyclePage({ pastWindow }) {
   );
 }
 
-function FacilityDirectory() {
+function FacilityDirectory({ recycleDonationBoxes }) {
   return (
     <div className={styles.card}>
       <h3 className={styles.cardTitle}>🏢 Registered Facilities</h3>

@@ -1,10 +1,3 @@
-import {
-  PRICE_PER_KM_PER_KG,
-  LOCAL_RESALE_WINDOW_DAYS,
-  CURRENCY_SYMBOL,
-  DAMAGE_LEVELS,
-} from '../data/mockData';
-
 // ─── Geo helpers ─────────────────────────────────────────────────────────────
 
 export function calculateDistance(lat1, lng1, lat2, lng2) {
@@ -28,7 +21,7 @@ export function findNearestWarehouse(userLat, userLng, warehouses) {
   return nearest;
 }
 
-export function calculateShippingCost(distanceKm, weightKg) {
+export function calculateShippingCost(distanceKm, weightKg, PRICE_PER_KM_PER_KG) {
   return parseFloat((distanceKm * PRICE_PER_KM_PER_KG * weightKg).toFixed(2));
 }
 
@@ -47,7 +40,7 @@ export function getEligibleDeliveryPoints(userLat, userLng, grade, deliveryPoint
 
 // ─── Dynamic Logic ─────────────────────────────────────────────────────────────
 
-function getDynamicDiscountPct(category, damageLevel) {
+function getDynamicDiscountPct(category, damageLevel, DAMAGE_LEVELS) {
   if (damageLevel === DAMAGE_LEVELS.IRREPAIRABLE) return 100; // 100% off (recycle)
   if (damageLevel === DAMAGE_LEVELS.MAJOR) return 60; // 60% off
 
@@ -61,7 +54,7 @@ function getDynamicDiscountPct(category, damageLevel) {
   return isElectronics ? 10 : 20; // 10% off for new electronics, 20% for others
 }
 
-export function calculateDynamicThreshold(currentResaleValue, damageLevel) {
+export function calculateDynamicThreshold(currentResaleValue, damageLevel, DAMAGE_LEVELS) {
   let pct = 0.20; // NEW / Open box
   if (damageLevel === DAMAGE_LEVELS.MINOR) pct = 0.12;
   else if (damageLevel === DAMAGE_LEVELS.MAJOR) pct = 0.08;
@@ -79,7 +72,9 @@ export function calculateDynamicThreshold(currentResaleValue, damageLevel) {
 
 // ─── Core routing logic ───────────────────────────────────────────────────────
 
-export function routeProduct({ userLat, userLng, userLabel, grade, damageLevel, product, warehouses, deliveryPoints }) {
+export function routeProduct({ userLat, userLng, userLabel, grade, damageLevel, product, warehouses, deliveryPoints, config }) {
+  const { PRICE_PER_KM_PER_KG, LOCAL_RESALE_WINDOW_DAYS, CURRENCY_SYMBOL, DAMAGE_LEVELS } = config;
+
   // ── Step 0: irrepairable damage → skip everything ──
   const effectiveDamageLevel = grade === 'DAMAGED' ? (damageLevel ?? DAMAGE_LEVELS.MINOR) : DAMAGE_LEVELS.NONE;
 
@@ -102,12 +97,12 @@ export function routeProduct({ userLat, userLng, userLabel, grade, damageLevel, 
   }
 
   // ── Step 1: Calculate discounts and value ──
-  const discountPct = getDynamicDiscountPct(product.category, effectiveDamageLevel);
+  const discountPct = getDynamicDiscountPct(product.category, effectiveDamageLevel, DAMAGE_LEVELS);
   const discountedPrice = parseFloat((product.originalPrice * (1 - discountPct / 100)).toFixed(0));
 
   const nearestWarehouse = findNearestWarehouse(userLat, userLng, warehouses);
-  const shippingCost     = calculateShippingCost(nearestWarehouse.distanceKm, product.weight);
-  const { threshold, thresholdPct, isFloorHit } = calculateDynamicThreshold(product.originalPrice, effectiveDamageLevel);
+  const shippingCost     = calculateShippingCost(nearestWarehouse.distanceKm, product.weight, PRICE_PER_KM_PER_KG);
+  const { threshold, thresholdPct, isFloorHit } = calculateDynamicThreshold(product.originalPrice, effectiveDamageLevel, DAMAGE_LEVELS);
   const isShippingFeasible = shippingCost < threshold;
 
   // ── Step 3: routing decision ──

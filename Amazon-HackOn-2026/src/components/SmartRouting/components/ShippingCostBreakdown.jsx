@@ -1,11 +1,12 @@
 import styles from '../SmartRouting.module.css';
-import { PRICE_PER_KM_PER_KG, CURRENCY_SYMBOL } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
 
 export default function ShippingCostBreakdown({ routingResult }) {
+  const { PRICE_PER_KM_PER_KG, CURRENCY_SYMBOL } = useConfig();
   const { nearestWarehouse, shippingCost, threshold, thresholdPct, isShippingFeasible, product, discountedPrice, isFloorHit } = routingResult;
 
   // Don't show for direct-recycle (irrepairable) — there's no shipping calculation
-  if (routingResult.decision === 'DIRECT_RECYCLE') return null;
+  if (!routingResult || routingResult.decision === 'DIRECT_RECYCLE') return null;
 
   return (
     <div className={styles.card}>

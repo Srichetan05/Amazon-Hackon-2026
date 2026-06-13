@@ -49,6 +49,58 @@ const PRODUCT_CATALOG = {
   'Apple AirPods (3rd Gen)': { id: null, originalPrice: 19900 }
 };
 
+const SMART_ROUTING_CONFIG = {
+  PRICE_PER_KM_PER_KG: 10,
+  LOCAL_RESALE_WINDOW_DAYS: 3,
+  CURRENCY_SYMBOL: '₹',
+  DAMAGE_LEVELS: {
+    IRREPAIRABLE: 'IRREPAIRABLE',
+    MAJOR: 'MAJOR',
+    MINOR: 'MINOR',
+    NONE: 'NONE',
+  },
+  warehouses: [
+    { id: 'wh-1', name: 'Mumbai Warehouse',    lat: 19.076,  lng: 72.8777, city: 'Mumbai'    },
+    { id: 'wh-2', name: 'Delhi Warehouse',     lat: 28.6139, lng: 77.209,  city: 'Delhi'     },
+    { id: 'wh-3', name: 'Bengaluru Warehouse', lat: 12.9716, lng: 77.5946, city: 'Bengaluru' },
+    { id: 'wh-4', name: 'Hyderabad Warehouse', lat: 17.385,  lng: 78.4867, city: 'Hyderabad' },
+    { id: 'wh-5', name: 'Chennai Warehouse',   lat: 13.0827, lng: 80.2707, city: 'Chennai'   },
+    { id: 'wh-6', name: 'Kolkata Warehouse',   lat: 22.5726, lng: 88.3639, city: 'Kolkata'   },
+  ],
+  deliveryPoints: [
+    { id: 'dp-1', name: 'Andheri Resale Hub',       lat: 19.1136, lng: 72.8697, city: 'Mumbai',    capacityUnits: 20, currentLoad: 8,  acceptedGrades: ['NEW','DAMAGED'], isActive: true  },
+    { id: 'dp-2', name: 'Powai Quick Sale',          lat: 19.1197, lng: 72.906,  city: 'Mumbai',    capacityUnits: 15, currentLoad: 14, acceptedGrades: ['NEW','DAMAGED'], isActive: true  },
+    { id: 'dp-3', name: 'Koramangala Resale Point',  lat: 12.9352, lng: 77.6245, city: 'Bengaluru', capacityUnits: 25, currentLoad: 5,  acceptedGrades: ['NEW'],           isActive: true  },
+    { id: 'dp-4', name: 'Indiranagar Outlet',        lat: 12.9784, lng: 77.6408, city: 'Bengaluru', capacityUnits: 10, currentLoad: 10, acceptedGrades: ['NEW'],                  isActive: false },
+    { id: 'dp-5', name: 'Connaught Place Hub',       lat: 28.6315, lng: 77.2167, city: 'Delhi',     capacityUnits: 30, currentLoad: 12, acceptedGrades: ['NEW','DAMAGED'], isActive: true  },
+    { id: 'dp-6', name: 'Lajpat Nagar Resale',       lat: 28.5686, lng: 77.2434, city: 'Delhi',     capacityUnits: 18, currentLoad: 3,  acceptedGrades: ['NEW'],           isActive: true  },
+  ],
+  recycleDonationBoxes: [
+    { id: 'rb-1', name: 'GreenCycle Mumbai',    type: 'RECYCLE',  city: 'Mumbai',    address: 'Dharavi Recycling Center, Mumbai'    },
+    { id: 'rb-2', name: 'Care Donation Mumbai', type: 'DONATION', city: 'Mumbai',    address: 'NGO Hub, Kurla, Mumbai'              },
+    { id: 'rb-3', name: 'EcoSort Bengaluru',    type: 'RECYCLE',  city: 'Bengaluru', address: 'HSR Layout Recycling Depot, Bengaluru'},
+    { id: 'rb-4', name: 'Helping Hands Delhi',  type: 'DONATION', city: 'Delhi',     address: 'Okhla Social Center, Delhi'          },
+    { id: 'rb-5', name: 'RecycleRight Delhi',   type: 'RECYCLE',  city: 'Delhi',     address: 'Noida Recycling Hub, Delhi NCR'      },
+  ],
+  sampleProducts: [
+    { id: 'prod-001', name: 'Samsung Galaxy S22',          grade: 'NEW',    weight: 0.5,  originalPrice: 58000, category: '📱 Smartphones'  },
+    { id: 'prod-002', name: 'Apple 20W USB-C Adapter',     grade: 'NEW',     weight: 0.1,  originalPrice: 1900,  category: '🔌 Accessories'     },
+    { id: 'prod-003', name: 'Nike Revolution 6 Shoes',      grade: 'DAMAGED', weight: 0.8,  originalPrice: 3695,  category: '👟 Footwear',      damageLevel: 'MINOR'        },
+    { id: 'prod-004', name: 'Amazon Basics HDMI Cable',     grade: 'NEW',    weight: 0.15, originalPrice: 399,   category: '🔌 Accessories'     },
+    { id: 'prod-005', name: 'boAt Rockerz 450',             grade: 'NEW',     weight: 0.25, originalPrice: 1499,  category: '🎧 Audio'         },
+    { id: 'prod-006', name: 'OnePlus Nord CE 3',            grade: 'DAMAGED', weight: 0.18, originalPrice: 24000, category: '📱 Smartphones',   damageLevel: 'MAJOR'        },
+    { id: 'prod-007', name: 'Realme Smart TV 43"',          grade: 'DAMAGED', weight: 8.5,  originalPrice: 32000, category: '📺 TVs',           damageLevel: 'IRREPAIRABLE' },
+    { id: 'prod-008', name: 'Puma Core Backpack',           grade: 'NEW',    weight: 0.4,  originalPrice: 1299,  category: '🎒 Bags'            },
+    { id: 'prod-009', name: 'Dyson V12 Vacuum',             grade: 'NEW',    weight: 2.3,  originalPrice: 58900, category: '🏠 Appliances'    },
+    { id: 'prod-010', name: 'JBL Flip 6 Speaker',           grade: 'NEW',     weight: 0.55, originalPrice: 11999, category: '🔊 Speakers'      },
+  ]
+};
+
+// Get configuration data
+app.get('/api/config', (req, res) => {
+  res.json(SMART_ROUTING_CONFIG);
+});
+
 // Get all inventory items
 app.get('/api/inventory', async (req, res) => {
   try {

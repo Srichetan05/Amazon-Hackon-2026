@@ -1,5 +1,6 @@
 import styles from '../SmartRouting.module.css';
-import { LOCAL_RESALE_WINDOW_DAYS, CURRENCY_SYMBOL, resaleInventory } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
+import { useInventory } from '../hooks/useInventory';
 
 const GRADE_COLOR = { NEW: styles.gradeNew, USED: styles.gradeUsed, DAMAGED: styles.gradeDamaged };
 
@@ -13,10 +14,10 @@ const GRADE_COLOR = { NEW: styles.gradeNew, USED: styles.gradeUsed, DAMAGED: sty
  * Recycle/Donate is NOT an option until the holdout period has fully elapsed.
  */
 export default function LocalResalePanel({ routingResult }) {
+  const { LOCAL_RESALE_WINDOW_DAYS, CURRENCY_SYMBOL } = useConfig();
   const { decision, destination, discountedPrice, product, grade, eligibleDeliveryPoints } = routingResult;
 
-  const withinWindow = resaleInventory.filter(i => i.daysListed <= LOCAL_RESALE_WINDOW_DAYS);
-  const pastWindow   = resaleInventory.filter(i => i.daysListed > LOCAL_RESALE_WINDOW_DAYS);
+  const { withinWindow, pastWindow } = useInventory();
 
   return (
     <div className={styles.card}>

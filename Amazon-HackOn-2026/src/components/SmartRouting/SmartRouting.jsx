@@ -7,7 +7,9 @@ import RoutePage from './pages/RoutePage';
 import ResalePage from './pages/ResalePage';
 import RecyclePage from './pages/RecyclePage';
 
-export default function SmartRouting() {
+import { ConfigProvider } from './contexts/ConfigContext';
+
+function SmartRoutingApp() {
   const [currentPage, setCurrentPage] = useState('route');
   const { withinWindow, pastWindow, addToInventory, addToRecycle, addToWarehouse } = useInventory();
 
@@ -46,5 +48,13 @@ export default function SmartRouting() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SmartRouting() {
+  return (
+    <ConfigProvider>
+      <SmartRoutingApp />
+    </ConfigProvider>
   );
 }
