@@ -11,7 +11,7 @@ import { ConfigProvider } from './contexts/ConfigContext';
 
 function SmartRoutingApp() {
   const [currentPage, setCurrentPage] = useState('route');
-  const { withinWindow, pastWindow, addToInventory, addToRecycle, addToWarehouse } = useInventory();
+  const { withinWindow, pastWindow, addToInventory, addToRecycle, addToWarehouse, updateDecision } = useInventory();
 
   function handleAddToResale(newItem) {
     addToInventory(newItem);
@@ -39,11 +39,13 @@ function SmartRoutingApp() {
           <ResalePage
             withinWindow={withinWindow}
             pastWindow={pastWindow}
+            updateDecision={updateDecision}
           />
         )}
         {currentPage === 'recycle' && (
           <RecyclePage
             pastWindow={pastWindow}
+            updateDecision={updateDecision}
           />
         )}
       </div>

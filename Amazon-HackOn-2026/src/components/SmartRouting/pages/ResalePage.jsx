@@ -160,7 +160,7 @@ function ActiveProductCard({ item, LOCAL_RESALE_WINDOW_DAYS, CURRENCY_SYMBOL }) 
 
 function ExpiredProductCard({ item, LOCAL_RESALE_WINDOW_DAYS }) {
   const overBy = item.daysListed - LOCAL_RESALE_WINDOW_DAYS;
-  const nextAction = item.grade === 'DAMAGED' ? '♻️ Recycle' : '❤️ Donate';
+  const nextAction = '❤️/♻️ Donation / Recycling';
 
   return (
     <div className={styles.expiredCard}>

@@ -128,34 +128,17 @@ export default function RoutePage({ onAddToResale, onAddToRecycle, onAddToWareho
       {isDirectRecycle && (
         <div className={`${styles.card} ${styles.directRecycleCard}`}>
           <div className={styles.decisionHeader}>
-            <span className={styles.decisionIcon}>🗑️</span>
+            <span className={styles.decisionIcon}>❤️/♻️</span>
             <div>
               <p className={styles.decisionLabel}>Routing Decision</p>
-              <h2 className={styles.decisionTitle}>Direct Recycle</h2>
+              <h2 className={styles.decisionTitle}>Direct Donation / Recycling</h2>
             </div>
           </div>
           <p className={styles.decisionJustification}>
             This product has <strong>irrepairable damage</strong> and cannot be
-            refurbished, resold, or returned to a warehouse. It will be sent
-            directly to a certified recycling facility — no shipping cost incurred.
+            refurbished, resold, or returned to a warehouse. It will be evaluated
+            for donation or sent to a certified recycling facility.
           </p>
-
-          {directRecycleFacility && (
-            <div className={styles.recycleFacilityBox}>
-              <span className={styles.recycleFacilityIcon}>♻️</span>
-              <div>
-                <p className={styles.recycleFacilityName}>{directRecycleFacility.name}</p>
-                <p className={styles.recycleFacilityAddress}>{directRecycleFacility.address}</p>
-              </div>
-              <button
-                type="button"
-                className={styles.viewRecycleBtn}
-                onClick={() => onNavigate('recycle')}
-              >
-                View All Facilities →
-              </button>
-            </div>
-          )}
 
           {added ? (
             <div className={styles.addedConfirmation} style={{ marginTop: 16 }}>

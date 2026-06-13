@@ -133,6 +133,10 @@ app.get('/api/inventory', async (req, res) => {
         type = 'WAREHOUSE';
       } else if (row.decision === 'direct_recycle') {
         type = 'RECYCLE';
+      } else if (row.decision === 'donate') {
+        type = 'DONATED';
+      } else if (row.decision === 'recycle') {
+        type = 'RECYCLED';
       }
 
       // Parse city from address (usually the last comma-separated value)
@@ -198,10 +202,18 @@ app.post('/api/inventory', async (req, res) => {
     // 2. Find or insert location
     let locationId = LOCATION_MAP[newItem.deliveryPointId];
     if (!locationId && newItem.deliveryPointId) {
-      const locRes = await client.query('SELECT id FROM locations WHERE id = $1 OR name = $2 LIMIT 1', [
-        newItem.deliveryPointId,
-        newItem.deliveryPointName
-      ]);
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(newItem.deliveryPointId);
+      let locRes;
+      if (isUuid) {
+        locRes = await client.query('SELECT id FROM locations WHERE id = $1 OR name = $2 LIMIT 1', [
+          newItem.deliveryPointId,
+          newItem.deliveryPointName
+        ]);
+      } else {
+        locRes = await client.query('SELECT id FROM locations WHERE name = $1 LIMIT 1', [
+          newItem.deliveryPointName
+        ]);
+      }
       if (locRes.rows.length > 0) {
         locationId = locRes.rows[0].id;
       } else {
@@ -309,6 +321,50 @@ app.post('/api/inventory', async (req, res) => {
     await client.query('ROLLBACK');
     console.error('Error adding inventory item:', err);
     res.status(500).json({ error: 'Failed to save inventory item to database.' });
+  } finally {
+    client.release();
+  }
+});
+
+// Update the routing decision for a product instance (Donate vs Recycle)
+app.put('/api/inventory/:id/decision', async (req, res) => {
+  const { id } = req.params;
+  const { decision } = req.body; // e.g. 'DONATE' or 'RECYCLE'
+  
+  if (!['DONATE', 'RECYCLE'].includes(decision)) {
+    return res.status(400).json({ error: 'Invalid decision' });
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // Update the routing decision
+    await client.query(`
+      UPDATE routing_decisions
+      SET decision = $1, decided_at = CURRENT_TIMESTAMP
+      WHERE product_instance_id = $2
+    `, [decision.toLowerCase(), id]);
+    
+    // Also record this as an event
+    await client.query(`
+      INSERT INTO product_events (product_instance_id, event_type, reason)
+      VALUES ($1, $2, $3)
+    `, [id, 'routed', `Manually assigned to ${decision} facility by operator`]);
+
+    // Update current status
+    await client.query(`
+      UPDATE product_instances
+      SET current_status = $1
+      WHERE id = $2
+    `, [decision.toLowerCase(), id]);
+
+    await client.query('COMMIT');
+    res.json({ success: true, message: `Successfully assigned to ${decision}` });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Failed to update decision:', err);
+    res.status(500).json({ error: 'Failed to update decision' });
   } finally {
     client.release();
   }

@@ -77,7 +77,15 @@ export function useInventory() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entry),
-    }).catch(err => {
+    })
+      .then(res => res.json())
+      .then(savedItem => {
+        // Update the optimistic ID with the real ID from the backend
+        if (savedItem && savedItem.id) {
+          setInventory(prev => prev.map(i => i.id === entry.id ? { ...i, id: savedItem.id } : i));
+        }
+      })
+      .catch(err => {
       console.warn('Backend save failed. Persisting to localStorage.', err);
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -121,6 +129,22 @@ export function useInventory() {
     return addToInventory({ ...newItem, type: 'WAREHOUSE' });
   }, [addToInventory]);
 
+  const updateDecision = useCallback(async (id, decision) => {
+    // Optimistic update
+    setInventory(prev => prev.filter(i => i.id !== id));
+    
+    // Call backend
+    try {
+      await fetch(`http://localhost:5000/api/inventory/${id}/decision`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision })
+      });
+    } catch (err) {
+      console.warn('Backend decision update failed', err);
+    }
+  }, []);
+
   return {
     inventory: inventoryWithDays,
     withinWindow,
@@ -128,6 +152,7 @@ export function useInventory() {
     warehouseItems,
     addToInventory,
     addToRecycle,
-    addToWarehouse
+    addToWarehouse,
+    updateDecision
   };
 }

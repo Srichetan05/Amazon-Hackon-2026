@@ -16,7 +16,7 @@ const TYPE_CONFIG = {
  */
 export default function RecycleDonatePanel() {
   const { recycleDonationBoxes, LOCAL_RESALE_WINDOW_DAYS } = useConfig();
-  const { pastWindow: expired } = useInventory();
+  const { pastWindow: expired, updateDecision } = useInventory();
 
   // Nothing to show if no product has exceeded the holdout
   if (expired.length === 0) return null;
@@ -27,43 +27,49 @@ export default function RecycleDonatePanel() {
       <p className={styles.cardSubtitle}>
         The following products have completed their {LOCAL_RESALE_WINDOW_DAYS}-day resale
         window without a buyer. They will now be dispatched to the appropriate
-        recycling or donation facility based on their condition.
+        recycling or donation facility.
       </p>
 
       {/* Products to dispatch */}
       <div className={styles.dispatchList}>
         {expired.map(item => {
-          const facility = item.grade === 'DAMAGED'
-            ? recycleDonationBoxes.find(b => b.type === 'RECYCLE' && b.city === item.city)
-              ?? recycleDonationBoxes.find(b => b.type === 'RECYCLE')
-            : recycleDonationBoxes.find(b => b.type === 'DONATION' && b.city === item.city)
-              ?? recycleDonationBoxes.find(b => b.type === 'DONATION');
-
-          const facilityConfig = TYPE_CONFIG[facility?.type ?? 'RECYCLE'];
-
           return (
             <div key={item.id} className={styles.dispatchRow}>
               <div className={styles.dispatchProduct}>
-                <span className={styles.productName}>{item.name}</span>
-                <span className={`${styles.gradeBadge} ${styles[`grade${item.grade.charAt(0)}${item.grade.slice(1).toLowerCase()}`]}`}>
-                  {item.grade}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                  <span className={styles.productName}>{item.name}</span>
+                  <span className={`${styles.gradeBadge} ${styles[`grade${item.grade.charAt(0)}${item.grade.slice(1).toLowerCase()}`]}`}>
+                    {item.grade}
+                  </span>
+                </div>
+                {item.grade === 'DAMAGED' && item.damageLevel && (
+                  <span className={styles.dispatchMeta} style={{ color: '#b91c1c', fontWeight: 500, marginBottom: '2px' }}>
+                    ⚠️ Damage Severity: {item.damageLevel}
+                  </span>
+                )}
                 <span className={styles.dispatchMeta}>
                   Listed {item.daysListed} days at {item.deliveryPointName}
                 </span>
               </div>
-              <div className={styles.dispatchArrow} aria-hidden="true">→</div>
-              {facility ? (
-                <div className={styles.dispatchFacility}>
-                  <span className={`${styles.rbTag} ${facilityConfig.color}`}>
-                    {facilityConfig.icon} {facilityConfig.label}
-                  </span>
-                  <span className={styles.rbName}>{facility.name}</span>
-                  <span className={styles.rbAddress}>{facility.address}</span>
+              <div className={styles.dispatchArrow} aria-hidden="true" style={{ margin: '0 12px' }}>→</div>
+              <div className={styles.dispatchFacility}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <button 
+                    type="button"
+                    className={styles.amzBtnPrimary} 
+                    onClick={() => updateDecision(item.id, 'DONATE')}
+                  >
+                    <span style={{ fontSize: '16px', marginRight: '4px' }}>❤️</span> Donate
+                  </button>
+                  <button 
+                    type="button"
+                    className={styles.amzBtnSecondary} 
+                    onClick={() => updateDecision(item.id, 'RECYCLE')}
+                  >
+                    <span style={{ fontSize: '16px', marginRight: '4px' }}>♻️</span> Recycle
+                  </button>
                 </div>
-              ) : (
-                <span className={styles.dispatchFacility}>No facility found</span>
-              )}
+              </div>
             </div>
           );
         })}
@@ -92,9 +98,8 @@ export default function RecycleDonatePanel() {
       <div className={styles.infoBanner}>
         <span aria-hidden="true">ℹ️</span>
         <span>
-          Functional items (NEW / USED) go to <strong>donation</strong>;
-          non-functional or DAMAGED items go to <strong>certified recycling</strong>.
-          Recycle/Donate is never triggered before the holdout window closes.
+          Items will be evaluated and routed to either <strong>donation</strong> or <strong>certified recycling</strong> facilities.
+          Donation / Recycling is never triggered before the holdout window closes.
         </span>
       </div>
     </div>

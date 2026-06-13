@@ -9,7 +9,7 @@ const TYPE_CONFIG = {
   DONATION: { icon: '❤️', label: 'Donation',  color: styles.donationTag },
 };
 
-export default function RecyclePage({ pastWindow }) {
+export default function RecyclePage({ pastWindow, updateDecision }) {
   const { recycleDonationBoxes, LOCAL_RESALE_WINDOW_DAYS } = useConfig();
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -48,8 +48,8 @@ export default function RecyclePage({ pastWindow }) {
         <h2 className={styles.pageTitle}>♻️ Recycle &amp; Donate</h2>
         <p className={styles.pageSubtitle}>
           The following products completed their {LOCAL_RESALE_WINDOW_DAYS}-day resale
-          window without a buyer. They are dispatched to the appropriate facility based
-          on their condition — DAMAGED items go to recycling, others go to donation.
+          window without a buyer. They will be dispatched to the appropriate recycling
+          or donation facility.
         </p>
         <div style={{ marginTop: 16 }}>
           <input
@@ -83,24 +83,23 @@ export default function RecyclePage({ pastWindow }) {
         {filteredPast.length > 0 ? (
           <div className={styles.dispatchList}>
             {filteredPast.map(item => {
-            const facility =
-              item.grade === 'DAMAGED'
-                ? recycleDonationBoxes.find(b => b.type === 'RECYCLE' && b.city === item.city) ??
-                  recycleDonationBoxes.find(b => b.type === 'RECYCLE')
-                : recycleDonationBoxes.find(b => b.type === 'DONATION' && b.city === item.city) ??
-                  recycleDonationBoxes.find(b => b.type === 'DONATION');
-
-            const facilityConfig = TYPE_CONFIG[facility?.type ?? 'RECYCLE'];
             const overBy = item.daysListed - LOCAL_RESALE_WINDOW_DAYS;
 
             return (
               <div key={item.id} className={styles.dispatchRow}>
                 {/* Product info */}
                 <div className={styles.dispatchProduct}>
-                  <span className={styles.productName}>{item.name}</span>
-                  <span className={`${styles.gradeBadge} ${GRADE_COLOR[item.grade]}`}>
-                    {item.grade}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span className={styles.productName}>{item.name}</span>
+                    <span className={`${styles.gradeBadge} ${GRADE_COLOR[item.grade]}`}>
+                      {item.grade}
+                    </span>
+                  </div>
+                  {item.grade === 'DAMAGED' && item.damageLevel && (
+                    <span className={styles.dispatchMeta} style={{ color: '#b91c1c', fontWeight: 500, marginBottom: '2px' }}>
+                      ⚠️ Damage Severity: {item.damageLevel}
+                    </span>
+                  )}
                   {item.type === 'RECYCLE' ? (
                     <span className={styles.dispatchMeta}>
                       Sent directly to {item.deliveryPointName} due to irreparable damage
@@ -120,22 +119,27 @@ export default function RecyclePage({ pastWindow }) {
                   </span>
                 </div>
 
-                <div className={styles.dispatchArrow} aria-hidden="true">→</div>
+                <div className={styles.dispatchArrow} aria-hidden="true" style={{ margin: '0 12px' }}>→</div>
 
-                {/* Facility */}
-                {facility ? (
-                  <div className={styles.dispatchFacility}>
-                    <span className={`${styles.rbTag} ${facilityConfig.color}`}>
-                      {facilityConfig.icon} {facilityConfig.label}
-                    </span>
-                    <span className={styles.rbName}>{facility.name}</span>
-                    <span className={styles.rbAddress}>{facility.address}</span>
+                {/* Facility Actions */}
+                <div className={styles.dispatchFacility}>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <button 
+                      type="button"
+                      className={styles.amzBtnPrimary} 
+                      onClick={() => updateDecision(item.id, 'DONATE')}
+                    >
+                      <span style={{ fontSize: '16px', marginRight: '4px' }}>❤️</span> Donate
+                    </button>
+                    <button 
+                      type="button"
+                      className={styles.amzBtnSecondary} 
+                      onClick={() => updateDecision(item.id, 'RECYCLE')}
+                    >
+                      <span style={{ fontSize: '16px', marginRight: '4px' }}>♻️</span> Recycle
+                    </button>
                   </div>
-                ) : (
-                  <div className={styles.dispatchFacility}>
-                    <span className={styles.rbName}>No facility found</span>
-                  </div>
-                )}
+                </div>
               </div>
             );
           })}
@@ -151,9 +155,8 @@ export default function RecyclePage({ pastWindow }) {
         <div className={styles.infoBanner}>
           <span aria-hidden="true">ℹ️</span>
           <span>
-            Functional items (NEW / USED) are routed to <strong>donation</strong>
-            centres. Non-functional or DAMAGED items go to{' '}
-            <strong>certified recycling</strong> facilities. Recycle / Donate is
+            Items will be evaluated and routed to either <strong>donation</strong> centres or
+            <strong> certified recycling</strong> facilities. Donation / Recycling is
             never triggered before the {LOCAL_RESALE_WINDOW_DAYS}-day holdout window closes.
           </span>
         </div>

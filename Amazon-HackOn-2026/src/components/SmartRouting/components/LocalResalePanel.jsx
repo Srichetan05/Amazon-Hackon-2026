@@ -154,7 +154,7 @@ export default function LocalResalePanel({ routingResult }) {
               <tbody>
                 {pastWindow.map(item => {
                   const overBy = item.daysListed - LOCAL_RESALE_WINDOW_DAYS;
-                  const nextAction = item.grade === 'DAMAGED' ? '♻️ Recycle' : '❤️ Donate';
+                  const nextAction = '❤️/♻️ Donation / Recycling';
                   return (
                     <tr key={item.id} className={styles.expiredRow}>
                       <td>
