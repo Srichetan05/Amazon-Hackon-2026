@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import AppShell from './layout/AppShell';
 import SmartRoutingPage from './pages/SmartRoutingPage';
-import PlaceholderPage from './pages/PlaceholderPage';
 import LifecyclePage from './pages/LifecyclePage';
 import GradingPage from './pages/GradingPage';
 
