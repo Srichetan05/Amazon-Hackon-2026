@@ -1,0 +1,175 @@
+/* ── App Shell & Header ──────────────────────────────────────────
+   Amazon color tokens (mirrored from SmartRouting module):
+     Dark navy:  #131921   (header bg)
+     Mid navy:   #232F3E   (sub-bar bg)
+     Orange:     #FF9900   (accent / active)
+     White:      #FFFFFF
+     Light grey: #EAEDED   (page bg)
+     Text dark:  #0F1111
+     Text mid:   #565959
+   ─────────────────────────────────────────────────────────────── */
+
+/* ── Shell wrapper ───────────────────────────────────────────── */
+.shell {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: #EAEDED;
+}
+
+/* ── Top header bar ──────────────────────────────────────────── */
+.appHeader {
+  background: #131921;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 20px;
+  height: 60px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+/* ── Brand ───────────────────────────────────────────────────── */
+.headerBrand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 6px 10px 6px 0;
+  margin-right: 12px;
+  border: 2px solid transparent;
+  border-radius: 3px;
+  transition: border-color 0.15s;
+  flex-shrink: 0;
+  user-select: none;
+}
+.headerBrand:hover,
+.headerBrand:focus-visible {
+  border-color: #FFFFFF;
+  outline: none;
+}
+
+.brandBox {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  line-height: 1;
+}
+
+.brandAmazon {
+  font-size: 24px;
+  font-weight: 700;
+  color: #FFFFFF;
+  font-family: 'Amazon Ember', 'Helvetica Neue', Arial, sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.brandDot {
+  font-size: 14px;
+  color: #FF9900;
+  font-weight: 700;
+  margin-left: 1px;
+}
+
+.brandTagline {
+  font-size: 11px;
+  color: #CCCCCC;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+
+/* ── Feature navigation ──────────────────────────────────────── */
+.headerNav {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  flex: 1;
+  overflow-x: auto;
+  /* hide scrollbar on overflow */
+  scrollbar-width: none;
+}
+.headerNav::-webkit-scrollbar { display: none; }
+
+.headerNavBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 18px;
+  height: 100%;
+  border: none;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: #CCCCCC;
+  white-space: nowrap;
+  transition: color 0.15s, border-bottom-color 0.15s;
+}
+
+.headerNavBtn:hover {
+  color: #FFFFFF;
+  border-bottom-color: rgba(255,255,255,0.3);
+}
+
+.headerNavBtnActive {
+  color: #FFFFFF;
+  font-weight: 700;
+  border-bottom-color: #FF9900;
+}
+
+.headerNavIcon {
+  font-size: 16px;
+}
+
+/* ── Right utility area ──────────────────────────────────────── */
+.headerUtils {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.utilBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 2px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: #CCCCCC;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.utilBtn:hover {
+  color: #FFFFFF;
+  border-color: #FFFFFF;
+}
+
+.utilLabel {
+  font-weight: 500;
+}
+
+/* ── Main content area ───────────────────────────────────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .appHeader { padding: 0 12px; }
+  .headerNavBtn { padding: 0 12px; font-size: 13px; }
+  .utilLabel { display: none; }
+  .brandTagline { display: none; }
+}
