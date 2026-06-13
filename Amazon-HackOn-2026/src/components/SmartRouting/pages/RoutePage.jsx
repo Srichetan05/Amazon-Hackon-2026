@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import styles from '../SmartRouting.module.css';
-import { warehouses, deliveryPoints, recycleDonationBoxes, CURRENCY_SYMBOL, DAMAGE_LEVELS } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
 import { routeProduct } from '../utils/routingEngine';
 
 import UserLocationInput from '../components/UserLocationInput';
@@ -10,6 +10,8 @@ import RoutingDecisionCard from '../components/RoutingDecisionCard';
 import WarehouseMap from '../components/WarehouseMap';
 
 export default function RoutePage({ onAddToResale, onAddToRecycle, onAddToWarehouse, onNavigate }) {
+  const config = useConfig();
+  const { warehouses, deliveryPoints, recycleDonationBoxes, CURRENCY_SYMBOL, DAMAGE_LEVELS } = config;
   const [userLocation, setUserLocation]           = useState(null);
   const [selectedProduct, setSelectedProduct]     = useState(null);
   const [selectedGrade, setSelectedGrade]         = useState('NEW');
@@ -27,6 +29,7 @@ export default function RoutePage({ onAddToResale, onAddToRecycle, onAddToWareho
         product: selectedProduct,
         warehouses,
         deliveryPoints,
+        config,
       });
     }
     if (!userLocation) return null;
@@ -40,8 +43,9 @@ export default function RoutePage({ onAddToResale, onAddToRecycle, onAddToWareho
       product: selectedProduct,
       warehouses,
       deliveryPoints,
+      config,
     });
-  }, [userLocation, selectedProduct, selectedGrade, selectedDamageLevel]);
+  }, [userLocation, selectedProduct, selectedGrade, selectedDamageLevel, config]);
 
   function handleProductChange(p)  { setSelectedProduct(p); setAdded(false); setSelectedDamageLevel(null); }
   function handleGradeChange(g)    { setSelectedGrade(g);   setAdded(false); setSelectedDamageLevel(null); }

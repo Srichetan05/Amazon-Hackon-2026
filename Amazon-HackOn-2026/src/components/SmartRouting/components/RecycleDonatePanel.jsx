@@ -1,5 +1,6 @@
 import styles from '../SmartRouting.module.css';
-import { recycleDonationBoxes, resaleInventory, LOCAL_RESALE_WINDOW_DAYS } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
+import { useInventory } from '../hooks/useInventory';
 
 const TYPE_CONFIG = {
   RECYCLE: { icon: '♻️', label: 'Recycling', color: styles.recycleTag },
@@ -14,7 +15,8 @@ const TYPE_CONFIG = {
  * recycle / donate is not an option until the holdout period is done.
  */
 export default function RecycleDonatePanel() {
-  const expired = resaleInventory.filter(i => i.daysListed > LOCAL_RESALE_WINDOW_DAYS);
+  const { recycleDonationBoxes, LOCAL_RESALE_WINDOW_DAYS } = useConfig();
+  const { pastWindow: expired } = useInventory();
 
   // Nothing to show if no product has exceeded the holdout
   if (expired.length === 0) return null;

@@ -1,5 +1,5 @@
 import styles from '../SmartRouting.module.css';
-import { CURRENCY_SYMBOL } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
 
 const DECISION_CONFIG = {
   WAREHOUSE:       { icon: '🏭', title: 'Return to Warehouse',   colorClass: styles.decisionWarehouse      },
@@ -9,6 +9,9 @@ const DECISION_CONFIG = {
 };
 
 export default function RoutingDecisionCard({ routingResult }) {
+  const { CURRENCY_SYMBOL } = useConfig();
+  if (!routingResult || routingResult.decision === 'DIRECT_RECYCLE') return null;
+
   const {
     decision, destination, justification,
     shippingCost, threshold, discountedPrice,

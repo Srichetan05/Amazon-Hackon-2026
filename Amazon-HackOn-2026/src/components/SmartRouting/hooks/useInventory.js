@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { LOCAL_RESALE_WINDOW_DAYS, resaleInventory } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
 
 const STORAGE_KEY = 'smart_routing_inventory';
 
@@ -14,33 +14,18 @@ export function getDaysListed(listedAtISO) {
 }
 
 /**
- * Builds the initial inventory by seeding mock data with
- * synthetic timestamps that match their daysListed values,
- * then merging any real items saved in localStorage.
+ * Builds the initial inventory by loading any real items saved in localStorage.
  */
 function buildInitialInventory() {
-  // Convert static mock items → timestamped items
-  const mockItems = resaleInventory.map(item => {
-    const listedAt = new Date(
-      Date.now() - item.daysListed * 24 * 60 * 60 * 1000
-    ).toISOString();
-    return { ...item, listedAt };
-  });
-
-  // Load any real items added by the user
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      const parsed = JSON.parse(saved);
-      // Merge: user items take precedence; avoid duplicate IDs
-      const existingIds = new Set(mockItems.map(i => i.id));
-      const userItems = parsed.filter(i => !existingIds.has(i.id));
-      return [...mockItems, ...userItems];
+      return JSON.parse(saved);
     }
   } catch {
     // Ignore corrupt storage
   }
-  return mockItems;
+  return [];
 }
 
 /**
@@ -53,6 +38,7 @@ function buildInitialInventory() {
  *   in real time (re-mount or refresh will show the correct elapsed days)
  */
 export function useInventory() {
+  const { LOCAL_RESALE_WINDOW_DAYS } = useConfig();
   const [inventory, setInventory] = useState(() => buildInitialInventory());
 
   // Fetch inventory from backend on mount
@@ -115,7 +101,7 @@ export function useInventory() {
   const withinWindow = inventoryWithDays.filter(
     i => (!i.type || i.type === 'RESALE') && i.daysListed <= LOCAL_RESALE_WINDOW_DAYS
   );
-  
+
   // Resale items that expired, plus direct recycle items
   const pastWindow = inventoryWithDays.filter(
     i => {
@@ -135,13 +121,13 @@ export function useInventory() {
     return addToInventory({ ...newItem, type: 'WAREHOUSE' });
   }, [addToInventory]);
 
-  return { 
-    inventory: inventoryWithDays, 
-    withinWindow, 
-    pastWindow, 
+  return {
+    inventory: inventoryWithDays,
+    withinWindow,
+    pastWindow,
     warehouseItems,
-    addToInventory, 
-    addToRecycle, 
-    addToWarehouse 
+    addToInventory,
+    addToRecycle,
+    addToWarehouse
   };
 }

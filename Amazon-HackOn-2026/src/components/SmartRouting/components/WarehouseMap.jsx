@@ -1,5 +1,5 @@
 import styles from '../SmartRouting.module.css';
-import { warehouses } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
 import { calculateDistance } from '../utils/routingEngine';
 
 /**
@@ -8,6 +8,7 @@ import { calculateDistance } from '../utils/routingEngine';
  * clear spatial overview for the demo.
  */
 export default function WarehouseMap({ userLocation, nearestWarehouseId }) {
+  const { warehouses } = useConfig();
   if (!userLocation) return null;
 
   const WIDTH = 400;

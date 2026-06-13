@@ -110,8 +110,8 @@ const INITIAL_INVENTORY = [
     id: '44444444-4444-4444-4444-444444444401',
     productId: '33333333-3333-3333-3333-333333333306', // OnePlus Nord CE 3
     name: 'OnePlus 11 5G',
-    grade: 'new',
-    damageLevel: 'NONE',
+    grade: 'DAMAGED',
+    damageLevel: 'MINOR',
     originalPrice: 61999,
     discountedPrice: 24800,
     daysListed: 4,

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import styles from '../SmartRouting.module.css';
-import { LOCAL_RESALE_WINDOW_DAYS, CURRENCY_SYMBOL } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
 
 const GRADE_COLOR = { NEW: styles.gradeNew, USED: styles.gradeUsed, DAMAGED: styles.gradeDamaged };
 
 export default function ResalePage({ withinWindow, pastWindow }) {
+  const { LOCAL_RESALE_WINDOW_DAYS, CURRENCY_SYMBOL } = useConfig();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filterItems = (items) => {
@@ -63,7 +64,7 @@ export default function ResalePage({ withinWindow, pastWindow }) {
 
         {filteredWithin.length > 0 ? (
           <div className={styles.productGrid}>
-            {filteredWithin.map(item => <ActiveProductCard key={item.id} item={item} />)}
+            {filteredWithin.map(item => <ActiveProductCard key={item.id} item={item} LOCAL_RESALE_WINDOW_DAYS={LOCAL_RESALE_WINDOW_DAYS} CURRENCY_SYMBOL={CURRENCY_SYMBOL} />)}
           </div>
         ) : (
           <p className={styles.emptyState}>No active listings found.</p>
@@ -82,7 +83,7 @@ export default function ResalePage({ withinWindow, pastWindow }) {
             Head to <strong>Recycle &amp; Donate</strong> to dispatch them.
           </p>
           <div className={styles.productGrid}>
-            {filteredPast.map(item => <ExpiredProductCard key={item.id} item={item} />)}
+            {filteredPast.map(item => <ExpiredProductCard key={item.id} item={item} LOCAL_RESALE_WINDOW_DAYS={LOCAL_RESALE_WINDOW_DAYS} />)}
           </div>
         </div>
       )}
@@ -90,7 +91,7 @@ export default function ResalePage({ withinWindow, pastWindow }) {
   );
 }
 
-function ActiveProductCard({ item }) {
+function ActiveProductCard({ item, LOCAL_RESALE_WINDOW_DAYS, CURRENCY_SYMBOL }) {
   const daysLeft = LOCAL_RESALE_WINDOW_DAYS - item.daysListed;
   const pct = Math.min((item.daysListed / LOCAL_RESALE_WINDOW_DAYS) * 100, 100);
   const barColor = pct >= 66 ? '#B12704' : pct >= 33 ? '#C45500' : '#067D62';
@@ -157,7 +158,7 @@ function ActiveProductCard({ item }) {
   );
 }
 
-function ExpiredProductCard({ item }) {
+function ExpiredProductCard({ item, LOCAL_RESALE_WINDOW_DAYS }) {
   const overBy = item.daysListed - LOCAL_RESALE_WINDOW_DAYS;
   const nextAction = item.grade === 'DAMAGED' ? '♻️ Recycle' : '❤️ Donate';
 

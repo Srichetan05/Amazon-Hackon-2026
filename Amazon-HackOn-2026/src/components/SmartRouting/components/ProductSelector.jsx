@@ -1,18 +1,20 @@
 import styles from '../SmartRouting.module.css';
-import { sampleProducts, CURRENCY_SYMBOL, DAMAGE_LEVELS } from '../data/mockData';
+import { useConfig } from '../contexts/ConfigContext';
 
 const GRADE_LABELS = {
   NEW:     { label: 'New',     emoji: '🟢', desc: 'Unopened / like new' },
   DAMAGED: { label: 'Damaged', emoji: '🔴', desc: 'Physical / functional damage' },
 };
 
-const DAMAGE_OPTIONS = [
+const getDamageOptions = (DAMAGE_LEVELS) => [
   { value: DAMAGE_LEVELS.MINOR,        label: 'Minor',        emoji: '🟡', desc: 'Cosmetic scratches — fully functional', discount: 'Dynamic % off' },
   { value: DAMAGE_LEVELS.MAJOR,        label: 'Major',        emoji: '🟠', desc: 'Significant damage — partially functional', discount: 'Dynamic % off' },
   { value: DAMAGE_LEVELS.IRREPAIRABLE, label: 'Irrepairable', emoji: '🔴', desc: 'Cannot be fixed — direct recycle', discount: '—' },
 ];
 
 export default function ProductSelector({ selectedProduct, selectedGrade, selectedDamageLevel, onProductChange, onGradeChange, onDamageLevelChange }) {
+  const { sampleProducts, CURRENCY_SYMBOL, DAMAGE_LEVELS } = useConfig();
+  const DAMAGE_OPTIONS = getDamageOptions(DAMAGE_LEVELS);
   return (
     <div className={styles.card}>
       <h2 className={styles.cardTitle}>
