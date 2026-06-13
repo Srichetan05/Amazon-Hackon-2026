@@ -101,8 +101,6 @@ export function routeProduct({ userLat, userLng, userLabel, grade, damageLevel, 
   const discountedPrice = parseFloat((product.originalPrice * (1 - discountPct / 100)).toFixed(0));
 
   const nearestWarehouse = findNearestWarehouse(userLat, userLng, warehouses);
-  const shippingCost = calculateShippingCost(nearestWarehouse.distanceKm, product.weight);
-  const { threshold, thresholdPct, isFloorHit } = calculateDynamicThreshold(product.originalPrice, effectiveDamageLevel);
   const shippingCost     = calculateShippingCost(nearestWarehouse.distanceKm, product.weight, PRICE_PER_KM_PER_KG);
   const { threshold, thresholdPct, isFloorHit } = calculateDynamicThreshold(product.originalPrice, effectiveDamageLevel, DAMAGE_LEVELS);
   const isShippingFeasible = shippingCost < threshold;
