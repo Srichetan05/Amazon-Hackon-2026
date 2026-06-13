@@ -24,10 +24,14 @@ This module implements an intelligent, dynamic reverse logistics and routing eng
    - If unsold after the window expires, functional items are automatically dispatched to donation centres, while damaged items are dispatched to recycling facilities.
    - Both the Local Resale and Recycle/Donate boards feature robust search capabilities filtering against product names, categories, and hub locations.
 
+5. **Persistent PostgreSQL Backend**
+   - Inventory tracking and routing decisions are now persisted to a live PostgreSQL database via a Node.js/Express backend (`/api/inventory`).
+   - The `useInventory` hook synchronizes seamlessly with these REST endpoints, ensuring real-time consistency across hubs.
+
 ## Architecture Overview
 
 - **`utils/routingEngine.js`**: Contains the core logic for computing distances, calculating dynamic shipping costs, applying categorical discounts, and deriving final routing decisions (`WAREHOUSE`, `LOCAL_RESALE`, `DIRECT_RECYCLE`).
-- **`data/mockData.js`**: Contains the sample mock inventory, damage multipliers, and delivery point registries.
+- **`hooks/useInventory.js`**: Manages the API synchronization layer, tracking active listings and fetching remote inventory state from the Postgres database.
 - **Pages**:
   - `RoutePage.jsx`: The primary dashboard for evaluating and routing a single returned product.
   - `ResalePage.jsx`: The marketplace board tracking local resale inventory held at the current hub.

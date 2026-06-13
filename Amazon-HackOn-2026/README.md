@@ -1,16 +1,30 @@
-# React + Vite
+# Amazon HackOn 2026 - Frontend Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This directory contains the React/Vite frontend for the Amazon Smart Routing and Digital Product Passport (Lifecycle) systems.
 
-Currently, two official plugins are available:
+## Features
+- **Smart Routing Module**: An AI-powered dashboard for routing returned inventory to optimal recovery paths (Resale, Donate, Recycle). Includes intelligent search, geospatial mapping, and automated recommendations.
+- **Lifecycle Dashboard**: The Digital Product Passport viewer that provides immutable history of a product's journey from warehouse to customer to recovery. Includes role-based views (Customer, Inspector, Admin) and dynamic logistics journey mapping.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Development Setup
 
-## React Compiler
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
 
-## Expanding the ESLint configuration
+3. Build for production:
+   ```bash
+   npm run build
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tech Stack
+- React 18
+- Vite
+- CSS Modules
+- Phosphor Icons (or generic emojis used internally)

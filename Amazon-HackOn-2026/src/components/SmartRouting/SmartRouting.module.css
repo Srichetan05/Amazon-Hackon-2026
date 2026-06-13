@@ -497,10 +497,11 @@
 }
 
 .pageSubtitle {
-  font-size: 16px;
   color: #565959;
-  line-height: 1.6;
+  font-size: 18px;
+  line-height: 1.5;
   margin: 0;
+  max-width: 800px;
 }
 
 /* ── Section headings ────────────────────────────────────────── */

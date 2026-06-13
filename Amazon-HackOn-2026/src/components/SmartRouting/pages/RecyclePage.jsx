@@ -51,19 +51,28 @@ export default function RecyclePage({ pastWindow, updateDecision }) {
           window without a buyer. They will be dispatched to the appropriate recycling
           or donation facility.
         </p>
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 16, position: 'relative', maxWidth: '400px' }}>
+          <span style={{
+            position: 'absolute',
+            left: '14px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: '#565959',
+            fontSize: '18px'
+          }}>
+            🔍
+          </span>
           <input
             type="search"
             placeholder="Search by product, city or hub location..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
-              padding: '10px 14px',
+              padding: '12px 14px 12px 40px',
               borderRadius: '8px',
               border: '1px solid #d5d9d9',
               width: '100%',
-              maxWidth: '400px',
-              fontSize: '14px',
+              fontSize: '16px',
               outline: 'none',
               boxShadow: '0 1px 2px rgba(15,17,17,0.15) inset'
             }}
