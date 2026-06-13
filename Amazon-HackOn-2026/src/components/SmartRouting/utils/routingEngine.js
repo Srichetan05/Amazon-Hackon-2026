@@ -49,7 +49,7 @@ function getDynamicDiscountPct(category, damageLevel, DAMAGE_LEVELS) {
   if (damageLevel === DAMAGE_LEVELS.MINOR) {
     return isElectronics ? 20 : 30; // 20% off for minor electronics, 30% for others
   }
-  
+
   // NONE (New/Open box)
   return isElectronics ? 10 : 20; // 10% off for new electronics, 20% for others
 }
@@ -58,11 +58,11 @@ export function calculateDynamicThreshold(currentResaleValue, damageLevel, DAMAG
   let pct = 0.20; // NEW / Open box
   if (damageLevel === DAMAGE_LEVELS.MINOR) pct = 0.12;
   else if (damageLevel === DAMAGE_LEVELS.MAJOR) pct = 0.08;
-  
+
   const rawThreshold = Math.round(currentResaleValue * pct);
   const floor = 50;
   const isFloorHit = rawThreshold < floor;
-  
+
   return {
     threshold: Math.max(floor, rawThreshold),
     thresholdPct: Math.round(pct * 100),
@@ -101,6 +101,8 @@ export function routeProduct({ userLat, userLng, userLabel, grade, damageLevel, 
   const discountedPrice = parseFloat((product.originalPrice * (1 - discountPct / 100)).toFixed(0));
 
   const nearestWarehouse = findNearestWarehouse(userLat, userLng, warehouses);
+  const shippingCost = calculateShippingCost(nearestWarehouse.distanceKm, product.weight);
+  const { threshold, thresholdPct, isFloorHit } = calculateDynamicThreshold(product.originalPrice, effectiveDamageLevel);
   const shippingCost     = calculateShippingCost(nearestWarehouse.distanceKm, product.weight, PRICE_PER_KM_PER_KG);
   const { threshold, thresholdPct, isFloorHit } = calculateDynamicThreshold(product.originalPrice, effectiveDamageLevel, DAMAGE_LEVELS);
   const isShippingFeasible = shippingCost < threshold;
@@ -109,14 +111,14 @@ export function routeProduct({ userLat, userLng, userLabel, grade, damageLevel, 
   let decision, destination, justification;
 
   if (isShippingFeasible) {
-    decision    = 'WAREHOUSE';
+    decision = 'WAREHOUSE';
     destination = nearestWarehouse;
     justification =
       `Shipping cost ${CURRENCY_SYMBOL}${shippingCost.toLocaleString('en-IN')} is below the ` +
       `${CURRENCY_SYMBOL}${threshold.toLocaleString('en-IN')} threshold ` +
       `(${thresholdPct}% of original price ${CURRENCY_SYMBOL}${product.originalPrice.toLocaleString('en-IN')}). Product will be returned to the nearest warehouse.`;
   } else {
-    decision    = 'LOCAL_RESALE';
+    decision = 'LOCAL_RESALE';
     const cleanCity = userLabel ? userLabel.split(',')[0] : 'Current Hub';
     destination = {
       id: `dp-${Math.random().toString(36).substr(2, 9)}`,
@@ -125,7 +127,7 @@ export function routeProduct({ userLat, userLng, userLabel, grade, damageLevel, 
       lat: userLat,
       lng: userLng,
     };
-    
+
     justification =
       `Shipping cost ${CURRENCY_SYMBOL}${shippingCost.toLocaleString('en-IN')} exceeds the ` +
       `${CURRENCY_SYMBOL}${threshold.toLocaleString('en-IN')} threshold. ` +

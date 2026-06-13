@@ -251,11 +251,41 @@ app.post('/api/inventory', async (req, res) => {
       VALUES ($1, $2, $3, $4)
     `, [instanceId, decisionVal, newItem.discountedPrice || 0, createdDate]);
 
-    // 6. Create event log
+        // 6. Create complete historical event timeline logs for the demo flow
+    const pkgOffset = new Date(createdDate.getTime() - 6 * 24 * 60 * 60 * 1000);
+    const delOffset = new Date(createdDate.getTime() - 4 * 24 * 60 * 60 * 1000);
+    const retOffset = new Date(createdDate.getTime() - 2 * 24 * 60 * 60 * 1000);
+    const grdOffset = new Date(createdDate.getTime() - 1 * 24 * 60 * 60 * 1000);
+
+    // 6.1 packed event
+    await client.query(`
+      INSERT INTO product_events (product_instance_id, event_type, event_time, reason)
+      VALUES ($1, $2, $3, $4)
+    `, [instanceId, 'packed', pkgOffset, 'Item packed and sealed at central warehouse node']);
+
+    // 6.2 delivered event
+    await client.query(`
+      INSERT INTO product_events (product_instance_id, event_type, event_time, reason)
+      VALUES ($1, $2, $3, $4)
+    `, [instanceId, 'delivered', delOffset, 'Delivered to customer doorstep']);
+
+    // 6.3 returned event
+    await client.query(`
+      INSERT INTO product_events (product_instance_id, event_type, event_time, reason)
+      VALUES ($1, $2, $3, $4)
+    `, [instanceId, 'returned', retOffset, newItem.returnReason || `Customer returns: Defect or cosmetic issue (${newItem.damageLevel || 'NONE'})`]);
+
+    // 6.4 graded event
+    await client.query(`
+      INSERT INTO product_events (product_instance_id, event_type, event_time, reason)
+      VALUES ($1, $2, $3, $4)
+    `, [instanceId, 'graded', grdOffset, `AI inspector graded cosmetic status as ${newItem.grade}`]);
+
+    // 6.5 routed event
     await client.query(`
       INSERT INTO product_events (product_instance_id, event_type, event_time, to_location_id, reason)
       VALUES ($1, $2, $3, $4, $5)
-    `, [instanceId, 'routed', createdDate, locationId, 'Smart routing confirmed']);
+    `, [instanceId, 'routed', createdDate, locationId, `Routed for optimized recovery decision: ${decisionVal.replace('_', ' ').toUpperCase()}`]);
 
     await client.query('COMMIT');
 
@@ -281,6 +311,101 @@ app.post('/api/inventory', async (req, res) => {
     res.status(500).json({ error: 'Failed to save inventory item to database.' });
   } finally {
     client.release();
+  }
+});
+
+// Get all product instances for the selector
+app.get('/api/lifecycle', async (req, res) => {
+  try {
+    const queryStr = `
+      SELECT 
+        pi.id,
+        p.name,
+        gr.grade,
+        pi.current_status AS status
+      FROM product_instances pi
+      JOIN products p ON pi.product_id = p.id
+      LEFT JOIN grading_results gr ON gr.product_instance_id = pi.id
+      ORDER BY pi.created_at DESC
+    `;
+    const { rows } = await pool.query(queryStr);
+    res.json(rows);
+  } catch (err) {
+    console.error('Failed to query lifecycle list:', err);
+    res.status(500).json({ error: 'Failed to retrieve lifecycle list.' });
+  }
+});
+
+// Get deep details for a single lifecycle passport
+app.get('/api/lifecycle/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const instanceQuery = `
+      SELECT 
+        pi.id,
+        pi.serial_number AS "serialNumber",
+        pi.public_id AS "publicId",
+        pi.packaging_date AS "packagingDate",
+        pi.delivery_date AS "deliveryDate",
+        pi.current_status AS "currentStatus",
+        pi.created_at AS "createdAt",
+        p.name,
+        p.sku,
+        p.manufacturer,
+        p.category,
+        gr.grade,
+        gr.confidence,
+        gr.description AS "damageLevel",
+        rd.decision,
+        rd.local_cost AS "localCost",
+        rd.warehouse_cost AS "warehouseCost",
+        rd.estimated_resale_value AS "discountedPrice",
+        rd.savings,
+        l.name AS "currentLocationName",
+        l.address AS "currentLocationAddress"
+      FROM product_instances pi
+      JOIN products p ON pi.product_id = p.id
+      LEFT JOIN grading_results gr ON gr.product_instance_id = pi.id
+      LEFT JOIN routing_decisions rd ON rd.product_instance_id = pi.id
+      LEFT JOIN locations l ON pi.current_location_id = l.id
+      WHERE pi.id = $1
+    `;
+    const instanceRes = await pool.query(instanceQuery, [id]);
+    if (instanceRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Product instance not found.' });
+    }
+
+    const eventsQuery = `
+      SELECT 
+        pe.id,
+        pe.event_type AS "type",
+        pe.event_time AS "time",
+        pe.reason,
+        pe.metadata,
+        lf.name AS "fromLocationName",
+        lf.address AS "fromLocationAddress",
+        lt.name AS "toLocationName",
+        lt.address AS "toLocationAddress"
+      FROM product_events pe
+      LEFT JOIN locations lf ON pe.from_location_id = lf.id
+      LEFT JOIN locations lt ON pe.to_location_id = lt.id
+      WHERE pe.product_instance_id = $1
+      ORDER BY pe.event_time ASC
+    `;
+    const eventsRes = await pool.query(eventsQuery, [id]);
+
+    const item = instanceRes.rows[0];
+    const originalPrice = PRODUCT_CATALOG[item.name]?.originalPrice || 0;
+
+    res.json({
+      ...item,
+      originalPrice,
+      events: eventsRes.rows
+    });
+  } catch (err) {
+    console.error('Failed to query lifecycle details:', err);
+    res.status(500).json({ error: 'Failed to retrieve product passport.' });
   }
 });
 

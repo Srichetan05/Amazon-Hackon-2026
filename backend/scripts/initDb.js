@@ -108,16 +108,30 @@ const MOCK_PRODUCTS = [
 const INITIAL_INVENTORY = [
   {
     id: '44444444-4444-4444-4444-444444444401',
-    productId: '33333333-3333-3333-3333-333333333306', // OnePlus Nord CE 3 (mapped in indexDb to OnePlus 11 5G in seed, wait we can just map name)
+    productId: '33333333-3333-3333-3333-333333333306', // OnePlus Nord CE 3
     name: 'OnePlus 11 5G',
     grade: 'DAMAGED',
     damageLevel: 'MINOR',
     originalPrice: 61999,
     discountedPrice: 24800,
     daysListed: 4,
-    deliveryPointId: '22222222-2222-2222-2222-222222222221', // Andheri
+    deliveryPointId: '22222222-2222-2222-2222-222222222221', // Andheri Resale Hub
     city: 'Mumbai',
-    category: '📱 Smartphones'
+    category: '📱 Smartphones',
+    serial: 'SN-OP11-8982',
+    publicId: 'PASS-OP11-8982',
+    packagingDate: -10,
+    deliveryDate: -8,
+    returnDate: -5,
+    returnReason: 'Wrong device color shipped',
+    events: [
+      { type: 'delivered', offsetDays: -10, to: '11111111-1111-1111-1111-111111111111', reason: 'Received from manufacturing plant' }, // WH Mumbai
+      { type: 'moved', offsetDays: -8, from: '11111111-1111-1111-1111-111111111111', to: '22222222-2222-2222-2222-222222222221', reason: 'Dispatched to local Resale Hub' },
+      { type: 'delivered', offsetDays: -6, to: '22222222-2222-2222-2222-222222222221', reason: 'Delivered to Andheri Hub storage node' },
+      { type: 'returned', offsetDays: -4, reason: 'Customer returns item at node' },
+      { type: 'graded', offsetDays: -3, reason: 'AI scanner graded cosmetic status as New' },
+      { type: 'routed', offsetDays: -1, to: '22222222-2222-2222-2222-222222222221', reason: 'Classified for Local Resale to avoid carbon footprints' }
+    ]
   },
   {
     id: '44444444-4444-4444-4444-444444444402',
@@ -128,9 +142,21 @@ const INITIAL_INVENTORY = [
     originalPrice: 1499,
     discountedPrice: 600,
     daysListed: 1,
-    deliveryPointId: '22222222-2222-2222-2222-222222222221', // Andheri
+    deliveryPointId: '22222222-2222-2222-2222-222222222221', // Andheri Resale Hub
     city: 'Mumbai',
-    category: '🎧 Audio'
+    category: '🎧 Audio',
+    serial: 'SN-BOAT-0294',
+    publicId: 'PASS-BOAT-0294',
+    packagingDate: -4,
+    deliveryDate: -3,
+    returnDate: -2,
+    returnReason: 'Changed mind, packaging unopened',
+    events: [
+      { type: 'delivered', offsetDays: -4, to: '11111111-1111-1111-1111-111111111111', reason: 'Stocked at Mumbai warehouse' },
+      { type: 'returned', offsetDays: -2, reason: 'Customer dropped package at returns desk' },
+      { type: 'graded', offsetDays: -1.5, reason: 'AI scanner inspection completed' },
+      { type: 'routed', offsetDays: -1, to: '22222222-2222-2222-2222-222222222221', reason: 'Routed for local quick sale listing' }
+    ]
   },
   {
     id: '44444444-4444-4444-4444-444444444403',
@@ -141,9 +167,21 @@ const INITIAL_INVENTORY = [
     originalPrice: 13999,
     discountedPrice: 5600,
     daysListed: 1,
-    deliveryPointId: '22222222-2222-2222-2222-222222222222', // Powai
+    deliveryPointId: '22222222-2222-2222-2222-222222222222', // Powai Quick Sale
     city: 'Mumbai',
-    category: '📖 E-Readers'
+    category: '📖 E-Readers',
+    serial: 'SN-KNDL-9081',
+    publicId: 'PASS-KNDL-9081',
+    packagingDate: -5,
+    deliveryDate: -4,
+    returnDate: -2,
+    returnReason: 'Gift recipient already had one',
+    events: [
+      { type: 'delivered', offsetDays: -5, to: '11111111-1111-1111-1111-111111111111', reason: 'Packed in Mumbai central node' },
+      { type: 'returned', offsetDays: -2, reason: 'Returned in box' },
+      { type: 'graded', offsetDays: -1.2, reason: 'Cosmetics verify as pristine open-box' },
+      { type: 'routed', offsetDays: -1, to: '22222222-2222-2222-2222-222222222222', reason: 'Forwarded to Powai hub' }
+    ]
   },
   {
     id: '44444444-4444-4444-4444-444444444404',
@@ -156,7 +194,19 @@ const INITIAL_INVENTORY = [
     daysListed: 5,
     deliveryPointId: '22222222-2222-2222-2222-222222222225', // Connaught Place
     city: 'Delhi',
-    category: '⌚ Wearables'
+    category: '⌚ Wearables',
+    serial: 'SN-NOIS-3401',
+    publicId: 'PASS-NOIS-3401',
+    packagingDate: -12,
+    deliveryDate: -10,
+    returnDate: -7,
+    returnReason: 'Damaged screen during transport',
+    events: [
+      { type: 'delivered', offsetDays: -12, to: '11111111-1111-1111-1111-111111111112', reason: 'Logged at Delhi Warehouse' },
+      { type: 'returned', offsetDays: -7, reason: 'Returned by customer (scratched face)' },
+      { type: 'graded', offsetDays: -6, reason: 'AI detection: Major display scratches' },
+      { type: 'routed', offsetDays: -5, to: '22222222-2222-2222-2222-222222222225', reason: 'Routed to outlet for component grade sales' }
+    ]
   },
   {
     id: '44444444-4444-4444-4444-444444444405',
@@ -169,7 +219,19 @@ const INITIAL_INVENTORY = [
     daysListed: 2,
     deliveryPointId: '22222222-2222-2222-2222-222222222226', // Lajpat Nagar
     city: 'Delhi',
-    category: '🎧 Audio'
+    category: '🎧 Audio',
+    serial: 'SN-APOD-7811',
+    publicId: 'PASS-APOD-7811',
+    packagingDate: -6,
+    deliveryDate: -5,
+    returnDate: -3,
+    returnReason: 'No longer needed',
+    events: [
+      { type: 'delivered', offsetDays: -6, to: '11111111-1111-1111-1111-111111111112', reason: 'Received in stock' },
+      { type: 'returned', offsetDays: -3, reason: 'Returned to Lajpat node' },
+      { type: 'graded', offsetDays: -2.5, reason: 'Grading status: New' },
+      { type: 'routed', offsetDays: -2, to: '22222222-2222-2222-2222-222222222226', reason: 'Listed for local resale to save shipping emissions' }
+    ]
   }
 ];
 
@@ -179,6 +241,10 @@ async function run() {
     console.log('Creating database schema if not exists...');
     await client.query(DDL);
     console.log('Schema created successfully.');
+
+    // Truncate tables to allow clean re-seeding
+    console.log('Truncating tables for fresh re-seed...');
+    await client.query('TRUNCATE TABLE routing_decisions, grading_results, product_events, product_instances CASCADE;');
 
     // Seed Locations
     console.log('Seeding locations...');
@@ -200,39 +266,57 @@ async function run() {
       `, [prod.id, prod.sku, prod.name, prod.manufacturer, prod.category]);
     }
 
-    // Check if inventory has already been seeded to avoid duplicate mock entries
-    const resCount = await client.query('SELECT COUNT(*) FROM product_instances');
-    const instanceCount = parseInt(resCount.rows[0].count, 10);
+    console.log('Seeding initial inventory items and history timelines...');
+    for (const item of INITIAL_INVENTORY) {
+      const pDate = new Date(Date.now() + item.packagingDate * 24 * 60 * 60 * 1000);
+      const dDate = new Date(Date.now() + item.deliveryDate * 24 * 60 * 60 * 1000);
+      const rDate = new Date(Date.now() + item.returnDate * 24 * 60 * 60 * 1000);
+      
+      // 1. Create product instance
+      await client.query(`
+        INSERT INTO product_instances (id, product_id, serial_number, public_id, packaging_date, delivery_date, current_status, current_location_id, created_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `, [
+        item.id,
+        item.productId,
+        item.serial,
+        item.publicId,
+        pDate,
+        dDate,
+        'routed',
+        item.deliveryPointId,
+        pDate
+      ]);
 
-    if (instanceCount === 0) {
-      console.log('Seeding initial inventory items...');
-      for (const item of INITIAL_INVENTORY) {
-        // Calculate synthetic packaging date based on listing days
-        const packagingDate = new Date(Date.now() - item.daysListed * 24 * 60 * 60 * 1000);
-        
-        // 1. Create product instance
-        await client.query(`
-          INSERT INTO product_instances (id, product_id, current_status, current_location_id, created_at)
-          VALUES ($1, $2, $3, $4, $5)
-        `, [item.id, item.productId, 'routed', item.deliveryPointId, packagingDate]);
+      // 2. Create grading results
+      await client.query(`
+        INSERT INTO grading_results (product_instance_id, grade, confidence, description, created_at)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [item.id, item.grade, 0.95, item.damageLevel, rDate]);
 
-        // 2. Create grading results
-        await client.query(`
-          INSERT INTO grading_results (product_instance_id, grade, confidence, description, created_at)
-          VALUES ($1, $2, $3, $4, $5)
-        `, [item.id, item.grade, 0.95, item.damageLevel, packagingDate]);
+      // 3. Create routing decision
+      await client.query(`
+        INSERT INTO routing_decisions (product_instance_id, decision, estimated_resale_value, decided_at)
+        VALUES ($1, $2, $3, $4)
+      `, [item.id, 'local_delivery_point', item.discountedPrice, rDate]);
 
-        // 3. Create routing decision
+      // 4. Create historical events
+      for (const ev of item.events) {
+        const evTime = new Date(Date.now() + ev.offsetDays * 24 * 60 * 60 * 1000);
         await client.query(`
-          INSERT INTO routing_decisions (product_instance_id, decision, estimated_resale_value, decided_at)
-          VALUES ($1, $2, $3, $4)
-        `, [item.id, 'local_delivery_point', item.discountedPrice, packagingDate]);
+          INSERT INTO product_events (product_instance_id, event_type, event_time, from_location_id, to_location_id, reason)
+          VALUES ($1, $2, $3, $4, $5, $6)
+        `, [
+          item.id,
+          ev.type,
+          evTime,
+          ev.from || null,
+          ev.to || null,
+          ev.reason || item.returnReason
+        ]);
       }
-      console.log('Seeding inventory items completed.');
-    } else {
-      console.log('Database already has items, skipping inventory seeding.');
     }
-
+    console.log('Seeding initial inventory items and history timelines completed.');
     console.log('Database initialization completed successfully!');
   } catch (err) {
     console.error('Error during database initialization:', err);
