@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styles from '../SmartRouting.module.css';
 import { recycleDonationBoxes, LOCAL_RESALE_WINDOW_DAYS } from '../data/mockData';
 
@@ -9,6 +10,16 @@ const TYPE_CONFIG = {
 };
 
 export default function RecyclePage({ pastWindow }) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredPast = pastWindow.filter(item => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    return item.city?.toLowerCase().includes(q) || 
+           item.deliveryPointName?.toLowerCase().includes(q) ||
+           item.name?.toLowerCase().includes(q) ||
+           item.category?.toLowerCase().includes(q);
+  });
   if (pastWindow.length === 0) {
     return (
       <div>
@@ -39,6 +50,24 @@ export default function RecyclePage({ pastWindow }) {
           window without a buyer. They are dispatched to the appropriate facility based
           on their condition — DAMAGED items go to recycling, others go to donation.
         </p>
+        <div style={{ marginTop: 16 }}>
+          <input
+            type="search"
+            placeholder="Search by product, city or hub location..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: '10px 14px',
+              borderRadius: '8px',
+              border: '1px solid #d5d9d9',
+              width: '100%',
+              maxWidth: '400px',
+              fontSize: '14px',
+              outline: 'none',
+              boxShadow: '0 1px 2px rgba(15,17,17,0.15) inset'
+            }}
+          />
+        </div>
       </div>
 
       {/* Dispatch list */}
@@ -46,12 +75,13 @@ export default function RecyclePage({ pastWindow }) {
         <h3 className={styles.cardTitle}>
           📦 Ready to Dispatch
           <span className={styles.sectionCount} style={{ marginLeft: 8 }}>
-            {pastWindow.length}
+            {filteredPast.length}
           </span>
         </h3>
 
-        <div className={styles.dispatchList}>
-          {pastWindow.map(item => {
+        {filteredPast.length > 0 ? (
+          <div className={styles.dispatchList}>
+            {filteredPast.map(item => {
             const facility =
               item.grade === 'DAMAGED'
                 ? recycleDonationBoxes.find(b => b.type === 'RECYCLE' && b.city === item.city) ??
@@ -70,10 +100,16 @@ export default function RecyclePage({ pastWindow }) {
                   <span className={`${styles.gradeBadge} ${GRADE_COLOR[item.grade]}`}>
                     {item.grade}
                   </span>
-                  <span className={styles.dispatchMeta}>
-                    Listed {item.daysListed} days at {item.deliveryPointName}
-                    {' — '}{overBy} day{overBy !== 1 ? 's' : ''} over window
-                  </span>
+                  {item.type === 'RECYCLE' ? (
+                    <span className={styles.dispatchMeta}>
+                      Sent directly to {item.deliveryPointName} due to irreparable damage
+                    </span>
+                  ) : (
+                    <span className={styles.dispatchMeta}>
+                      Listed {item.daysListed} days at {item.deliveryPointName}
+                      {' — '}{overBy} day{overBy !== 1 ? 's' : ''} over window
+                    </span>
+                  )}
                   <span className={styles.dispatchMeta}>
                     Added:{' '}
                     {new Date(item.listedAt).toLocaleString('en-IN', {
@@ -103,6 +139,9 @@ export default function RecyclePage({ pastWindow }) {
             );
           })}
         </div>
+        ) : (
+          <p className={styles.emptyState}>No items match your search.</p>
+        )}
       </div>
 
       <FacilityDirectory />

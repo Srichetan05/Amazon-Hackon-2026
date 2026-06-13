@@ -17,30 +17,120 @@
 
 /* ── Layout ─────────────────────────────────────────────────── */
 .container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 24px 16px 64px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
   font-family: 'Amazon Ember', 'Helvetica Neue', Arial, sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   color: #0F1111;
   text-align: left;
   background: #EAEDED;
   width: 100%;
   box-sizing: border-box;
+  min-height: calc(100svh - 60px);
 }
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: #FFFFFF;
+  border-right: 1px solid #D5D9D9;
+  position: sticky;
+  top: 70px;
+  height: calc(100svh - 70px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 24px 0 32px;
+}
+
+/* ── Navigation ──────────────────────────────────────────────── */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.navSectionLabel {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #767676;
+  padding: 0 24px 12px;
+}
+
+.navBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border: none;
+  border-left: 4px solid transparent;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: #0F1111;
+  transition: all 0.15s;
+  white-space: nowrap;
+  width: 100%;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.navBtn:hover { background: #F7F8F8; }
+
+.navBtnInner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.navBtnText {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navBtnActive {
+  border-left-color: #FF9900;
+  background: #FFF8EE;
+  color: #C45500;
+  font-weight: 700;
+}
+
+.navBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #FF9900;
+  color: #131921;
+  flex-shrink: 0;
+}
+
+.navBadgeAlert { background: #B12704; color: #fff; }
 
 /* ── Card ───────────────────────────────────────────────────── */
 .card {
   background: #FFFFFF;
   border: 1px solid #D5D9D9;
   border-radius: 8px;
-  padding: 20px 24px;
-  margin-bottom: 16px;
+  padding: 24px 32px;
+  margin-bottom: 24px;
   box-shadow: 0 2px 5px rgba(15,17,17,0.08);
 }
 
 .cardTitle {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: #0F1111;
   margin: 0 0 6px;
@@ -51,7 +141,7 @@
 }
 
 .cardSubtitle {
-  font-size: 14px;
+  font-size: 15px;
   color: #565959;
   margin: 0 0 20px;
   line-height: 1.55;
@@ -79,7 +169,7 @@
   padding: 10px 14px;
   border: 1px solid #D5D9D9;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 16px;
   color: #0F1111;
   background: #FFFFFF;
   box-sizing: border-box;
@@ -94,7 +184,7 @@
 
 .label {
   display: block;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: #0F1111;
   margin-bottom: 14px;
@@ -156,12 +246,12 @@
   display: block;
   font-weight: 700;
   color: #0F1111;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .gradeDesc {
   display: block;
-  font-size: 12px;
+  font-size: 14px;
   color: #565959;
   margin-top: 2px;
 }
@@ -209,7 +299,7 @@
 
 .damageLevelLabel {
   font-weight: 700;
-  font-size: 15px;
+  font-size: 16px;
   color: #0F1111;
   flex: 1;
 }
@@ -225,7 +315,7 @@
 }
 
 .damageLevelDesc {
-  font-size: 12px;
+  font-size: 13px;
   color: #565959;
   margin: 0;
   line-height: 1.4;
@@ -270,7 +360,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 11px 16px;
-  font-size: 15px;
+  font-size: 16px;
   border-bottom: 1px solid #D5D9D9;
 }
 .costRow:last-child { border-bottom: none; }
@@ -283,7 +373,7 @@
 
 /* Dynamic threshold explanation */
 .thresholdNote {
-  font-size: 13px;
+  font-size: 14px;
   color: #565959;
   padding: 10px 16px;
   background: #F7F8F8;
@@ -297,7 +387,7 @@
   gap: 10px;
   padding: 12px 16px;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
 }
 .bannerIcon { font-size: 18px; flex-shrink: 0; }
@@ -330,14 +420,14 @@
 }
 
 .decisionTitle {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #0F1111;
   margin: 0;
 }
 
 .decisionJustification {
-  font-size: 15px;
+  font-size: 16px;
   color: #565959;
   margin: 0 0 16px;
   line-height: 1.6;
@@ -354,12 +444,12 @@
 .detailRow {
   display: flex;
   justify-content: space-between;
-  font-size: 15px;
+  font-size: 16px;
   gap: 12px;
 }
 .detailLabel { color: #565959; }
 .detailValue { font-weight: 600; color: #0F1111; text-align: right; }
-.detailHighlight { color: #067D62; font-size: 17px; }
+.detailHighlight { color: #067D62; font-size: 18px; }
 
 /* ── Map ─────────────────────────────────────────────────────── */
 .mapContainer {
@@ -387,71 +477,27 @@
   margin-right: 4px;
 }
 
-/* ── Navigation ──────────────────────────────────────────────── */
-.nav {
-  display: flex;
-  gap: 0;
-  background: #232F3E;
-  margin: 0 -16px 20px;
-  padding: 0 16px;
-  overflow-x: auto;
-  border-radius: 0;
-}
-
-.navBtn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 14px 20px;
-  border: none;
-  border-bottom: 3px solid transparent;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  background: transparent;
-  color: #CCCCCC;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.navBtn:hover { color: #FFFFFF; border-bottom-color: rgba(255,255,255,0.3); }
-
-.navBtnActive {
-  color: #FFFFFF;
-  border-bottom-color: #FF9900;
-  font-weight: 700;
-}
-
-.navBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
-  font-size: 11px;
-  font-weight: 700;
-  background: #FF9900;
-  color: #131921;
-}
-
-.navBadgeAlert { background: #B12704; color: #fff; }
-
 /* ── Page layout ─────────────────────────────────────────────── */
-.pageContent { min-height: 300px; }
+.pageContent {
+  flex: 1;
+  padding: 40px 48px;
+  min-height: 300px;
+  box-sizing: border-box;
+  max-width: 900px;
+  margin: 0 auto;
+}
 
 .pageIntro { margin-bottom: 16px; }
 
 .pageTitle {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #0F1111;
   margin: 16px 0 6px;
 }
 
 .pageSubtitle {
-  font-size: 15px;
+  font-size: 16px;
   color: #565959;
   line-height: 1.6;
   margin: 0;
@@ -459,7 +505,7 @@
 
 /* ── Section headings ────────────────────────────────────────── */
 .sectionHeading {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: #0F1111;
   margin: 20px 0 4px;
@@ -480,7 +526,7 @@
 }
 
 .sectionNote {
-  font-size: 14px;
+  font-size: 15px;
   color: #565959;
   margin: 0 0 14px;
   line-height: 1.55;
@@ -517,14 +563,14 @@
 }
 
 .productCardName {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #007185;
   line-height: 1.3;
 }
 
 .productCardCategory {
-  font-size: 12px;
+  font-size: 14px;
   color: #767676;
   margin-top: 2px;
 }
@@ -537,19 +583,19 @@
 }
 
 .productCardPrice {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #B12704;
 }
 
 .productCardWas {
-  font-size: 13px;
+  font-size: 14px;
   color: #767676;
   text-decoration: line-through;
 }
 
 .productCardDiscount {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #C45500;
 }
@@ -564,14 +610,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 14px;
   color: #565959;
 }
 
 .productCardMetaIcon { font-size: 14px; }
 
 .productCardBuyers {
-  font-size: 13px;
+  font-size: 14px;
   color: #007185;
   font-weight: 600;
 }
@@ -599,7 +645,7 @@
 }
 
 .daysBarLabel {
-  font-size: 12px;
+  font-size: 13px;
   color: #0F1111;
   font-weight: 600;
 }
@@ -623,7 +669,7 @@
   align-items: center;
   padding: 4px 10px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   background: #FFF8EE;
   color: #C45500;
@@ -636,7 +682,7 @@
   align-items: center;
   padding: 4px 10px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   background: #FEF0EC;
   color: #B12704;
@@ -659,7 +705,7 @@
 
 /* ── Empty state ─────────────────────────────────────────────── */
 .emptyState {
-  font-size: 16px;
+  font-size: 17px;
   color: #565959;
   text-align: center;
   padding: 32px 16px;
@@ -694,7 +740,7 @@
 }
 
 .dispatchMeta {
-  font-size: 13px;
+  font-size: 14px;
   color: #565959;
 }
 
@@ -745,8 +791,8 @@
 .recycleTag  { background: #EBF9F0; color: #067D62; border: 1px solid #A3D9A5; }
 .donationTag { background: #FEF0EC; color: #B12704; border: 1px solid #F5BEB4; }
 
-.rbName    { font-size: 15px; font-weight: 700; color: #0F1111; margin: 0 0 3px; }
-.rbAddress { font-size: 13px; color: #565959; margin: 0; }
+.rbName    { font-size: 16px; font-weight: 700; color: #0F1111; margin: 0 0 3px; }
+.rbAddress { font-size: 14px; color: #565959; margin: 0; }
 
 /* ── Info banner ─────────────────────────────────────────────── */
 .infoBanner {
@@ -775,7 +821,7 @@
   justify-content: space-between;
   align-items: baseline;
   padding: 10px 16px;
-  font-size: 15px;
+  font-size: 16px;
   border-bottom: 1px solid #D5D9D9;
   gap: 12px;
 }
@@ -784,7 +830,7 @@
 .addLabel { color: #565959; flex-shrink: 0; }
 .addValue { font-weight: 600; color: #0F1111; text-align: right; }
 .addPriceHighlight { color: #B12704; font-weight: 700; font-size: 17px; }
-.addPriceSub { font-size: 13px; font-weight: 400; color: #565959; }
+.addPriceSub { font-size: 14px; font-weight: 400; color: #565959; }
 
 .addBtn {
   padding: 12px 24px;
@@ -792,7 +838,7 @@
   border: 1px solid #FF9900;
   background: linear-gradient(to bottom, #FFD814, #FF9900);
   color: #131921;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   width: 100%;
@@ -811,7 +857,7 @@
   background: #EBF9F0;
   border: 1px solid #A3D9A5;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 16px;
   color: #044F35;
 }
 
@@ -820,7 +866,7 @@
   border: none;
   padding: 0;
   color: #007185;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
@@ -836,7 +882,7 @@
   background: #FFF8EE;
   border: 1px solid #F0C14B;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 16px;
   color: #5A3E00;
   margin-bottom: 16px;
 }
@@ -885,7 +931,7 @@
   border: 1px solid #D5D9D9;
   background: #FFFFFF;
   color: #565959;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   transition: all 0.15s;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
@@ -918,7 +964,7 @@
   border: none;
   background: transparent;
   padding: 13px 0;
-  font-size: 15px;
+  font-size: 16px;
   color: #0F1111;
   outline: none;
   min-width: 0;
@@ -980,7 +1026,7 @@
 .suggestionText { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 
 .suggestionMain {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: #0F1111;
   white-space: nowrap;
@@ -998,7 +1044,7 @@
 
 .noResults {
   padding: 16px;
-  font-size: 15px;
+  font-size: 16px;
   color: #565959;
   text-align: center;
 }
@@ -1012,7 +1058,7 @@
   background: #EBF9F0;
   border: 1px solid #A3D9A5;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .selectedLabel {
@@ -1057,7 +1103,7 @@
 .recycleFacilityIcon { font-size: 28px; flex-shrink: 0; }
 
 .recycleFacilityName {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #0F1111;
   margin: 0 0 3px;
@@ -1076,7 +1122,7 @@
   border: 1px solid #D5D9D9;
   background: #FFFFFF;
   color: #007185;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -1104,15 +1150,110 @@
 }
 
 .resalePrimaryTitle {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: #0F1111;
   margin: 0 0 4px;
 }
 
 .resalePrimarySubtitle {
-  font-size: 14px;
+  font-size: 15px;
   color: #565959;
   margin: 0;
   line-height: 1.5;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    position: relative;
+    top: auto;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #D5D9D9;
+    padding: 12px 0 0 0;
+  }
+  
+  .nav {
+    flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 16px;
+    gap: 8px;
+  }
+  
+  .nav::-webkit-scrollbar { display: none; }
+  
+  .navSectionLabel {
+    display: none;
+  }
+  
+  .navBtn {
+    width: auto;
+    border-left: none;
+    border-bottom: 4px solid transparent;
+    padding: 12px 16px;
+  }
+  
+  .navBtnActive {
+    border-left-color: transparent;
+    border-bottom-color: #FF9900;
+  }
+  
+  .pageContent {
+    padding: 24px 16px;
+  }
+  
+  .card {
+    padding: 20px 16px;
+  }
+  
+  .productGrid, .rbGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .gradeOptions, .damageOptions {
+    flex-direction: column;
+  }
+  
+  .gradeOption, .damageOption {
+    width: 100%;
+    min-width: unset;
+    box-sizing: border-box;
+  }
+
+  .detailRow, .costRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .detailValue {
+    text-align: left;
+  }
+
+  .decisionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .dispatchRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .dispatchArrow {
+    display: none;
+  }
+  
+  .searchIcon {
+    display: none;
+  }
 }

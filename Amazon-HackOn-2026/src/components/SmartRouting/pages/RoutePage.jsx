@@ -9,10 +9,10 @@ import ShippingCostBreakdown from '../components/ShippingCostBreakdown';
 import RoutingDecisionCard from '../components/RoutingDecisionCard';
 import WarehouseMap from '../components/WarehouseMap';
 
-export default function RoutePage({ onAddToResale, onNavigate }) {
+export default function RoutePage({ onAddToResale, onAddToRecycle, onAddToWarehouse, onNavigate }) {
   const [userLocation, setUserLocation]           = useState(null);
   const [selectedProduct, setSelectedProduct]     = useState(null);
-  const [selectedGrade, setSelectedGrade]         = useState('USED');
+  const [selectedGrade, setSelectedGrade]         = useState('NEW');
   const [selectedDamageLevel, setSelectedDamageLevel] = useState(null);
   const [added, setAdded]                         = useState(false);
 
@@ -34,6 +34,7 @@ export default function RoutePage({ onAddToResale, onNavigate }) {
     return routeProduct({
       userLat: userLocation.lat,
       userLng: userLocation.lng,
+      userLabel: userLocation.label,
       grade: selectedGrade,
       damageLevel: selectedDamageLevel,
       product: selectedProduct,
@@ -48,25 +49,49 @@ export default function RoutePage({ onAddToResale, onNavigate }) {
   function handleLocationSet(loc)  { setUserLocation(loc);  setAdded(false); }
 
   function handleAdd() {
-    if (!routingResult || routingResult.decision !== 'LOCAL_RESALE') return;
-    const { destination, discountedPrice, product, grade, damageLevel } = routingResult;
-    onAddToResale({
-      name: product.name,
-      grade,
-      damageLevel: damageLevel ?? DAMAGE_LEVELS.NONE,
-      originalPrice: product.originalPrice,
-      discountedPrice: discountedPrice ?? Math.round(product.originalPrice * 0.4),
-      deliveryPointId: destination?.id ?? 'dp-1',
-      deliveryPointName: destination?.name ?? 'Unknown Hub',
-      city: destination?.city ?? '',
-      category: product.category ?? '',
-    });
+    if (!routingResult) return;
+    const { decision, destination, discountedPrice, product, grade, damageLevel } = routingResult;
+    
+    if (decision === 'LOCAL_RESALE') {
+      onAddToResale({
+        name: product.name,
+        grade,
+        damageLevel: damageLevel ?? DAMAGE_LEVELS.NONE,
+        originalPrice: product.originalPrice,
+        discountedPrice: discountedPrice ?? Math.round(product.originalPrice * 0.4),
+        deliveryPointId: destination?.id ?? 'dp-1',
+        deliveryPointName: destination?.name ?? 'Unknown Hub',
+        city: destination?.city ?? '',
+        category: product.category ?? '',
+      });
+    } else if (decision === 'DIRECT_RECYCLE') {
+      const facility = recycleDonationBoxes.find(b => b.type === 'RECYCLE') ?? null;
+      onAddToRecycle({
+        name: product.name,
+        grade,
+        damageLevel: damageLevel ?? DAMAGE_LEVELS.IRREPAIRABLE,
+        originalPrice: product.originalPrice,
+        deliveryPointName: facility?.name ?? 'Recycling Facility',
+        city: facility?.city ?? '',
+        category: product.category ?? '',
+      });
+    } else if (decision === 'WAREHOUSE') {
+      onAddToWarehouse({
+        name: product.name,
+        grade,
+        damageLevel: damageLevel ?? DAMAGE_LEVELS.NONE,
+        originalPrice: product.originalPrice,
+        deliveryPointName: destination?.name ?? 'Amazon Warehouse',
+        city: destination?.city ?? '',
+        category: product.category ?? '',
+      });
+    }
     setAdded(true);
   }
 
   function handleReset() {
     setSelectedProduct(null);
-    setSelectedGrade('USED');
+    setSelectedGrade('NEW');
     setSelectedDamageLevel(null);
     setUserLocation(null);
     setAdded(false);
@@ -126,6 +151,22 @@ export default function RoutePage({ onAddToResale, onNavigate }) {
                 View All Facilities →
               </button>
             </div>
+          )}
+
+          {added ? (
+            <div className={styles.addedConfirmation} style={{ marginTop: 16 }}>
+              <span>✅</span>
+              <span>
+                Added to Recycle List!{' '}
+                <button type="button" className={styles.linkBtn} onClick={() => onNavigate('recycle')}>
+                  View in Recycle & Donate →
+                </button>
+              </span>
+            </div>
+          ) : (
+            <button type="button" className={styles.addBtn} style={{ marginTop: 16 }} onClick={handleAdd}>
+              + Confirm &amp; Route to Recycle
+            </button>
           )}
 
           <button type="button" className={styles.resetBtn} onClick={handleReset}>
@@ -197,15 +238,53 @@ export default function RoutePage({ onAddToResale, onNavigate }) {
               </div>
 
               {added ? (
-                <div className={styles.addedConfirmation}>
-                  <span>✅</span>
-                  <span>
-                    Listed on the marketplace!{' '}
-                    <button type="button" className={styles.linkBtn} onClick={() => onNavigate('resale')}>
-                      View Local Resale →
-                    </button>
-                  </span>
-                </div>
+                <>
+                  <div className={styles.addedConfirmation}>
+                    <span>✅</span>
+                    <span>
+                      Listed on the marketplace!{' '}
+                      <button type="button" className={styles.linkBtn} onClick={() => onNavigate('resale')}>
+                        View in Local Resale →
+                      </button>
+                    </span>
+                  </div>
+
+                  {/* Preview card of newly listed item */}
+                  <div className={styles.productCard} style={{ marginTop: 14 }}>
+                    <div className={styles.productCardHeader}>
+                      <div>
+                        <div className={styles.productCardName}>{routingResult.product.name}</div>
+                        <div className={styles.productCardCategory}>{routingResult.product.category}</div>
+                      </div>
+                    </div>
+                    <div className={styles.productCardPricing}>
+                      <span className={styles.productCardPrice}>
+                        {CURRENCY_SYMBOL}{(routingResult.discountedPrice ?? 0).toLocaleString('en-IN')}
+                      </span>
+                      <span className={styles.productCardWas}>
+                        {CURRENCY_SYMBOL}{routingResult.product.originalPrice.toLocaleString('en-IN')}
+                      </span>
+                      <span className={styles.productCardDiscount}>
+                        {routingResult.discountPct}% off
+                      </span>
+                    </div>
+                    <div className={styles.productCardMeta}>
+                      <div className={styles.productCardMetaRow}>
+                        <span className={styles.productCardMetaIcon}>📦</span>
+                        <span>
+                          {selectedGrade}{selectedDamageLevel ? ` — ${selectedDamageLevel}` : ''}
+                        </span>
+                      </div>
+                      <div className={styles.productCardMetaRow}>
+                        <span className={styles.productCardMetaIcon}>🏪</span>
+                        <span>{routingResult.destination?.name}, {routingResult.destination?.city}</span>
+                      </div>
+                    </div>
+                    <div className={styles.productCardFooter}>
+                      <span className={styles.statusActive}>Just listed • 0 days</span>
+                    </div>
+                  </div>
+                </>
               ) : (
                 <button type="button" className={styles.addBtn} onClick={handleAdd}>
                   + Confirm &amp; List on Local Marketplace
@@ -223,6 +302,18 @@ export default function RoutePage({ onAddToResale, onNavigate }) {
           )}
           <ShippingCostBreakdown routingResult={routingResult} />
           <RoutingDecisionCard routingResult={routingResult} />
+
+          {routingResult.decision === 'WAREHOUSE' && !added && (
+            <button type="button" className={styles.addBtn} style={{ marginTop: 16 }} onClick={handleAdd}>
+              + Confirm &amp; Route to Warehouse
+            </button>
+          )}
+          {routingResult.decision === 'WAREHOUSE' && added && (
+            <div className={styles.addedConfirmation} style={{ marginTop: 16 }}>
+              <span>✅</span>
+              <span>Successfully added to Returns List!</span>
+            </div>
+          )}
 
           <button type="button" className={styles.resetBtn} onClick={handleReset}>
             ← Route another product

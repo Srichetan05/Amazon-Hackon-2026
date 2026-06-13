@@ -79,18 +79,42 @@ export function useInventory() {
     return entry;
   }, []);
 
-  // Compute live daysListed for every item
+  // Compute live daysListed for every item (only relevant for resale)
   const inventoryWithDays = inventory.map(item => ({
     ...item,
-    daysListed: getDaysListed(item.listedAt),
+    daysListed: item.listedAt ? getDaysListed(item.listedAt) : 0,
   }));
 
   const withinWindow = inventoryWithDays.filter(
-    i => i.daysListed <= LOCAL_RESALE_WINDOW_DAYS
+    i => (!i.type || i.type === 'RESALE') && i.daysListed <= LOCAL_RESALE_WINDOW_DAYS
   );
+  
+  // Resale items that expired, plus direct recycle items
   const pastWindow = inventoryWithDays.filter(
-    i => i.daysListed > LOCAL_RESALE_WINDOW_DAYS
+    i => {
+      if (i.type === 'RECYCLE') return true;
+      if (!i.type || i.type === 'RESALE') return i.daysListed > LOCAL_RESALE_WINDOW_DAYS;
+      return false;
+    }
   );
 
-  return { inventory: inventoryWithDays, withinWindow, pastWindow, addToInventory };
+  const warehouseItems = inventoryWithDays.filter(i => i.type === 'WAREHOUSE');
+
+  const addToRecycle = useCallback((newItem) => {
+    return addToInventory({ ...newItem, type: 'RECYCLE' });
+  }, [addToInventory]);
+
+  const addToWarehouse = useCallback((newItem) => {
+    return addToInventory({ ...newItem, type: 'WAREHOUSE' });
+  }, [addToInventory]);
+
+  return { 
+    inventory: inventoryWithDays, 
+    withinWindow, 
+    pastWindow, 
+    warehouseItems,
+    addToInventory, 
+    addToRecycle, 
+    addToWarehouse 
+  };
 }

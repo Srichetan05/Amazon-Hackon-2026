@@ -3,13 +3,12 @@ import { sampleProducts, CURRENCY_SYMBOL, DAMAGE_LEVELS } from '../data/mockData
 
 const GRADE_LABELS = {
   NEW:     { label: 'New',     emoji: '🟢', desc: 'Unopened / like new' },
-  USED:    { label: 'Used',    emoji: '🟡', desc: 'Functional with wear' },
   DAMAGED: { label: 'Damaged', emoji: '🔴', desc: 'Physical / functional damage' },
 };
 
 const DAMAGE_OPTIONS = [
-  { value: DAMAGE_LEVELS.MINOR,        label: 'Minor',        emoji: '🟡', desc: 'Cosmetic scratches — fully functional', discount: '50%' },
-  { value: DAMAGE_LEVELS.MAJOR,        label: 'Major',        emoji: '🟠', desc: 'Significant damage — partially functional', discount: '25%' },
+  { value: DAMAGE_LEVELS.MINOR,        label: 'Minor',        emoji: '🟡', desc: 'Cosmetic scratches — fully functional', discount: 'Dynamic % off' },
+  { value: DAMAGE_LEVELS.MAJOR,        label: 'Major',        emoji: '🟠', desc: 'Significant damage — partially functional', discount: 'Dynamic % off' },
   { value: DAMAGE_LEVELS.IRREPAIRABLE, label: 'Irrepairable', emoji: '🔴', desc: 'Cannot be fixed — direct recycle', discount: '—' },
 ];
 

@@ -9,7 +9,7 @@ import RecyclePage from './pages/RecyclePage';
 
 export default function SmartRouting() {
   const [currentPage, setCurrentPage] = useState('route');
-  const { withinWindow, pastWindow, addToInventory } = useInventory();
+  const { withinWindow, pastWindow, addToInventory, addToRecycle, addToWarehouse } = useInventory();
 
   function handleAddToResale(newItem) {
     addToInventory(newItem);
@@ -28,6 +28,8 @@ export default function SmartRouting() {
         {currentPage === 'route' && (
           <RoutePage
             onAddToResale={handleAddToResale}
+            onAddToRecycle={addToRecycle}
+            onAddToWarehouse={addToWarehouse}
             onNavigate={setCurrentPage}
           />
         )}

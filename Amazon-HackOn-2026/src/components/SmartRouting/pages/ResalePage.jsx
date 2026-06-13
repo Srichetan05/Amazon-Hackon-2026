@@ -1,9 +1,25 @@
+import { useState } from 'react';
 import styles from '../SmartRouting.module.css';
 import { LOCAL_RESALE_WINDOW_DAYS, CURRENCY_SYMBOL } from '../data/mockData';
 
 const GRADE_COLOR = { NEW: styles.gradeNew, USED: styles.gradeUsed, DAMAGED: styles.gradeDamaged };
 
 export default function ResalePage({ withinWindow, pastWindow }) {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filterItems = (items) => {
+    if (!searchQuery.trim()) return items;
+    const q = searchQuery.toLowerCase();
+    return items.filter(item => 
+      item.city?.toLowerCase().includes(q) || 
+      item.deliveryPointName?.toLowerCase().includes(q) ||
+      item.name?.toLowerCase().includes(q) ||
+      item.category?.toLowerCase().includes(q)
+    );
+  };
+
+  const filteredWithin = filterItems(withinWindow);
+  const filteredPast = filterItems(pastWindow);
   return (
     <div>
       <div className={styles.pageIntro}>
@@ -15,40 +31,58 @@ export default function ResalePage({ withinWindow, pastWindow }) {
           time each item was added. Recycle / Donate only activates after the holdout
           window expires.
         </p>
+        <div style={{ marginTop: 16 }}>
+          <input
+            type="search"
+            placeholder="Search by product, city or hub location..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              padding: '10px 14px',
+              borderRadius: '8px',
+              border: '1px solid #d5d9d9',
+              width: '100%',
+              maxWidth: '400px',
+              fontSize: '14px',
+              outline: 'none',
+              boxShadow: '0 1px 2px rgba(15,17,17,0.15) inset'
+            }}
+          />
+        </div>
       </div>
 
       {/* ── Active listings ── */}
       <div className={styles.card}>
         <div className={styles.sectionHeading}>
           ✅ Available Now
-          <span className={styles.sectionCount}>{withinWindow.length}</span>
+          <span className={styles.sectionCount}>{filteredWithin.length}</span>
         </div>
         <p className={styles.sectionNote}>
           Within the {LOCAL_RESALE_WINDOW_DAYS}-day window — buy it before it's gone.
         </p>
 
-        {withinWindow.length > 0 ? (
+        {filteredWithin.length > 0 ? (
           <div className={styles.productGrid}>
-            {withinWindow.map(item => <ActiveProductCard key={item.id} item={item} />)}
+            {filteredWithin.map(item => <ActiveProductCard key={item.id} item={item} />)}
           </div>
         ) : (
-          <p className={styles.emptyState}>No active listings right now.</p>
+          <p className={styles.emptyState}>No active listings found.</p>
         )}
       </div>
 
       {/* ── Expired ── */}
-      {pastWindow.length > 0 && (
+      {filteredPast.length > 0 && (
         <div className={styles.card}>
           <div className={`${styles.sectionHeading} ${styles.sectionHeadingAlert}`}>
             ⚠️ Holdout Period Expired
-            <span className={styles.sectionCount}>{pastWindow.length}</span>
+            <span className={styles.sectionCount}>{filteredPast.length}</span>
           </div>
           <p className={styles.sectionNote}>
             These products weren't sold within {LOCAL_RESALE_WINDOW_DAYS} days.
             Head to <strong>Recycle &amp; Donate</strong> to dispatch them.
           </p>
           <div className={styles.productGrid}>
-            {pastWindow.map(item => <ExpiredProductCard key={item.id} item={item} />)}
+            {filteredPast.map(item => <ExpiredProductCard key={item.id} item={item} />)}
           </div>
         </div>
       )}

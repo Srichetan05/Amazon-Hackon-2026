@@ -1,10 +1,8 @@
 import {
-  PRICE_PER_KM,
+  PRICE_PER_KM_PER_KG,
   LOCAL_RESALE_WINDOW_DAYS,
   CURRENCY_SYMBOL,
   DAMAGE_LEVELS,
-  DAMAGE_DISCOUNT,
-  getShippingThreshold,
 } from '../data/mockData';
 
 // ─── Geo helpers ─────────────────────────────────────────────────────────────
@@ -30,8 +28,8 @@ export function findNearestWarehouse(userLat, userLng, warehouses) {
   return nearest;
 }
 
-export function calculateShippingCost(distanceKm) {
-  return parseFloat((distanceKm * PRICE_PER_KM).toFixed(2));
+export function calculateShippingCost(distanceKm, weightKg) {
+  return parseFloat((distanceKm * PRICE_PER_KM_PER_KG * weightKg).toFixed(2));
 }
 
 export function scoreDeliveryPoint(point, distanceKm) {
@@ -47,22 +45,41 @@ export function getEligibleDeliveryPoints(userLat, userLng, grade, deliveryPoint
     .sort((a, b) => b.score - a.score);
 }
 
+// ─── Dynamic Logic ─────────────────────────────────────────────────────────────
+
+function getDynamicDiscountPct(category, damageLevel) {
+  if (damageLevel === DAMAGE_LEVELS.IRREPAIRABLE) return 100; // 100% off (recycle)
+  if (damageLevel === DAMAGE_LEVELS.MAJOR) return 60; // 60% off
+
+  const isElectronics = category.toLowerCase().includes('phone') || category.toLowerCase().includes('tablet') || category.toLowerCase().includes('laptop') || category.toLowerCase().includes('audio') || category.toLowerCase().includes('speaker');
+
+  if (damageLevel === DAMAGE_LEVELS.MINOR) {
+    return isElectronics ? 20 : 30; // 20% off for minor electronics, 30% for others
+  }
+  
+  // NONE (New/Open box)
+  return isElectronics ? 10 : 20; // 10% off for new electronics, 20% for others
+}
+
+export function calculateDynamicThreshold(currentResaleValue, damageLevel) {
+  let pct = 0.20; // NEW / Open box
+  if (damageLevel === DAMAGE_LEVELS.MINOR) pct = 0.12;
+  else if (damageLevel === DAMAGE_LEVELS.MAJOR) pct = 0.08;
+  
+  const rawThreshold = Math.round(currentResaleValue * pct);
+  const floor = 50;
+  const isFloorHit = rawThreshold < floor;
+  
+  return {
+    threshold: Math.max(floor, rawThreshold),
+    thresholdPct: Math.round(pct * 100),
+    isFloorHit
+  };
+}
+
 // ─── Core routing logic ───────────────────────────────────────────────────────
 
-/**
- * routeProduct — dynamic threshold + damage-level awareness
- *
- * Decision tree:
- *
- * 1. DAMAGED + IRREPAIRABLE  → DIRECT_RECYCLE  (never ship, never resell)
- * 2. shipping cost < dynamic threshold (8 % of product price)
- *    → WAREHOUSE
- * 3. shipping cost ≥ threshold AND eligible local delivery points exist
- *    → LOCAL_RESALE  (discount depends on damage level)
- * 4. shipping cost ≥ threshold AND no eligible local delivery points
- *    → RECYCLE_DONATE
- */
-export function routeProduct({ userLat, userLng, grade, damageLevel, product, warehouses, deliveryPoints }) {
+export function routeProduct({ userLat, userLng, userLabel, grade, damageLevel, product, warehouses, deliveryPoints }) {
   // ── Step 0: irrepairable damage → skip everything ──
   const effectiveDamageLevel = grade === 'DAMAGED' ? (damageLevel ?? DAMAGE_LEVELS.MINOR) : DAMAGE_LEVELS.NONE;
 
@@ -84,15 +101,16 @@ export function routeProduct({ userLat, userLng, grade, damageLevel, product, wa
     };
   }
 
-  // ── Step 1: calculate shipping cost & dynamic threshold ──
+  // ── Step 1: Calculate discounts and value ──
+  const discountPct = getDynamicDiscountPct(product.category, effectiveDamageLevel);
+  const discountedPrice = parseFloat((product.originalPrice * (1 - discountPct / 100)).toFixed(0));
+
   const nearestWarehouse = findNearestWarehouse(userLat, userLng, warehouses);
-  const shippingCost     = calculateShippingCost(nearestWarehouse.distanceKm);
-  const threshold        = getShippingThreshold(product.originalPrice);
+  const shippingCost     = calculateShippingCost(nearestWarehouse.distanceKm, product.weight);
+  const { threshold, thresholdPct, isFloorHit } = calculateDynamicThreshold(product.originalPrice, effectiveDamageLevel);
   const isShippingFeasible = shippingCost < threshold;
 
-  const eligiblePoints = getEligibleDeliveryPoints(userLat, userLng, grade, deliveryPoints);
-
-  // ── Step 2: routing decision ──
+  // ── Step 3: routing decision ──
   let decision, destination, justification;
 
   if (isShippingFeasible) {
@@ -101,31 +119,24 @@ export function routeProduct({ userLat, userLng, grade, damageLevel, product, wa
     justification =
       `Shipping cost ${CURRENCY_SYMBOL}${shippingCost.toLocaleString('en-IN')} is below the ` +
       `${CURRENCY_SYMBOL}${threshold.toLocaleString('en-IN')} threshold ` +
-      `(8 % of product value). Product will be returned to the nearest warehouse.`;
-  } else if (eligiblePoints.length > 0) {
+      `(${thresholdPct}% of original price ${CURRENCY_SYMBOL}${product.originalPrice.toLocaleString('en-IN')}). Product will be returned to the nearest warehouse.`;
+  } else {
     decision    = 'LOCAL_RESALE';
-    destination = eligiblePoints[0];
-    const discountPct = Math.round((1 - DAMAGE_DISCOUNT[effectiveDamageLevel]) * 100);
+    const cleanCity = userLabel ? userLabel.split(',')[0] : 'Current Hub';
+    destination = {
+      id: `dp-${Math.random().toString(36).substr(2, 9)}`,
+      name: `${cleanCity} Delivery point`,
+      city: cleanCity,
+      lat: userLat,
+      lng: userLng,
+    };
+    
     justification =
       `Shipping cost ${CURRENCY_SYMBOL}${shippingCost.toLocaleString('en-IN')} exceeds the ` +
       `${CURRENCY_SYMBOL}${threshold.toLocaleString('en-IN')} threshold. ` +
-      `Product will be listed at "${eligiblePoints[0].name}" for up to ${LOCAL_RESALE_WINDOW_DAYS} days ` +
-      `at a ${discountPct} % discount.`;
-  } else {
-    decision    = 'RECYCLE_DONATE';
-    destination = null;
-    justification =
-      `Shipping cost exceeds threshold and no eligible local hub is available. ` +
-      `Product will be categorised for recycling or donation.`;
+      `Product will be listed at "${destination.name}" for up to ${LOCAL_RESALE_WINDOW_DAYS} days ` +
+      `at a ${discountPct}% discount.`;
   }
-
-  // ── Step 3: discounted price ──
-  const discountMultiplier = DAMAGE_DISCOUNT[effectiveDamageLevel];
-  const discountedPrice    = decision === 'LOCAL_RESALE'
-    ? parseFloat((product.originalPrice * discountMultiplier).toFixed(0))
-    : null;
-
-  const discountPct = Math.round((1 - discountMultiplier) * 100);
 
   return {
     decision,
@@ -133,8 +144,9 @@ export function routeProduct({ userLat, userLng, grade, damageLevel, product, wa
     nearestWarehouse,
     shippingCost,
     threshold,
+    thresholdPct,
+    isFloorHit,
     isShippingFeasible,
-    eligibleDeliveryPoints: eligiblePoints,
     justification,
     discountedPrice,
     discountPct,

@@ -107,11 +107,11 @@ export default function UserLocationInput({ onLocationSet }) {
   return (
     <div className={styles.card}>
       <h2 className={styles.cardTitle}>
-        <span className={styles.stepBadge}>2</span> Your Location
+        <span className={styles.stepBadge}>2</span> Current Hub Location
       </h2>
       <p className={styles.cardSubtitle}>
-        Search for any city, area, or locality in India. We&apos;ll find the
-        nearest warehouse and calculate the shipping cost from your location.
+        Search for your current Amazon facility or area. We'll use this as the starting point 
+        to calculate warehouse shipping costs, or keep the item here if local resale is triggered.
       </p>
 
       <div className={styles.searchWrapper} ref={containerRef}>
@@ -127,7 +127,7 @@ export default function UserLocationInput({ onLocationSet }) {
             }}
             onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
             placeholder="e.g. Koramangala, Bengaluru or Lajpat Nagar, Delhi…"
-            aria-label="Search for your location"
+            aria-label="Search for your hub location"
             aria-expanded={showDropdown}
             aria-autocomplete="list"
             autoComplete="off"
