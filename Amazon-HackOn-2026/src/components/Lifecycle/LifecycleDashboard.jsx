@@ -65,7 +65,7 @@ export default function LifecycleDashboard() {
     if (!passport) return { summary: '', issues: [] };
     const grade = (passport.grade || 'new').toLowerCase();
     const damage = (passport.damageLevel || 'NONE').toUpperCase();
-    
+
     let summary = passport.conditionSummary;
     let issues = passport.visibleIssues || [];
 
