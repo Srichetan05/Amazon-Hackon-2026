@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ConfigContext = createContext(null);
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 export function ConfigProvider({ children }) {
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,7 @@ export function ConfigProvider({ children }) {
     let active = true;
     async function fetchConfig() {
       try {
-        const res = await fetch('http://localhost:5000/api/config');
+        const res = await fetch(`${API_BASE_URL}/api/config`);
         if (!res.ok) throw new Error('Failed to fetch config from backend');
         const data = await res.json();
         if (active) {
