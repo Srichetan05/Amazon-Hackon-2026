@@ -10,6 +10,7 @@ This directory contains the Express.js and PostgreSQL backend for the Smart Rout
 ## Requirements
 - Node.js
 - PostgreSQL running locally (default config expects user `postgres`, password `postgres`, database `amazon_hackon`)
+- A Google Gemini API Key (added to `.env`)
 
 ## Setup & Running
 
@@ -18,12 +19,19 @@ This directory contains the Express.js and PostgreSQL backend for the Smart Rout
    npm install
    ```
 
-2. Start the development server (runs with nodemon):
+2. Create a `.env` file in the `backend/` directory:
+   ```env
+   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/amazon_hackon
+   PORT=5000
+   GEMINI_API_KEY=your_google_gemini_api_key_here
+   ```
+
+3. Start the development server (runs with nodemon):
    ```bash
    npm run dev
    ```
 
-3. Start production server:
+4. Start production server:
    ```bash
    npm start
    ```
@@ -33,3 +41,5 @@ This directory contains the Express.js and PostgreSQL backend for the Smart Rout
 - `POST /api/inventory` - Submit a new AI-graded routing decision.
 - `GET /api/lifecycle` - Fetch the list of passports for the Lifecycle dashboard.
 - `GET /api/lifecycle/:id` - Fetch deep lifecycle metrics, environmental impact, and immutable timeline events for a specific Digital Product Passport.
+- `POST /api/grade-product` - Proxies image payload to Google Gemini 2.5 Flash for computer vision structural defect detection.
+- `POST /api/grading-results` - Saves the AI inspection report, creates an immutable timeline event, and generates a new routing decision.

@@ -14,13 +14,25 @@ A transparent, immutable lifecycle dashboard for every returned item.
 - Features Role-Based Access Control: Customers see a sanitized public timeline, while Amazon Inspectors and Admins see AI confidence scores, damage severity metadata, and backend routing logic.
 - Generates a unique QR code for the physical box and calculates a live Sustainability Scorecard (Carbon Emissions, Miles, and Water saved).
 
+## 3. AI Visual Product Grading (`/src/components/Grading`)
+An advanced computer vision dashboard for warehouse inspectors.
+- Uses Google Gemini 2.5 Flash to visually inspect images of returned products and identify structural defects like torn soles or scratched casing.
+- Generates precise, dynamic CSS bounding boxes to highlight detected damage on the original image.
+- Calculates automated Repairability and Value Recovery scores to assist in determining the optimal downstream routing decision.
+
 ## Tech Stack
 - **Frontend**: React (Vite), vanilla CSS modules (Amazon.in Design DNA)
 - **Backend**: Node.js, Express, PostgreSQL
+- **AI/ML**: Google Gemini Pro Vision API
 - **Architecture**: REST API with real-time UI state synchronization
 
 ## Getting Started
 
 1. Set up your PostgreSQL database and run the schema setup in `/backend`.
-2. Start the backend server: `npm run dev` in the `/backend` directory.
-3. Start the frontend Vite app: `npm run dev` in the root directory.
+2. Ensure you have added your `GEMINI_API_KEY` to the `.env` file in the backend.
+3. Start the backend server: `npm run dev` in the `/backend` directory.
+4. Start the frontend Vite app: `npm run dev` in the `frontend` directory.
+
+## Contributors
+- [G.SriChetan Reddy](https://github.com/Srichetan05)
+- [Devendra Chand](https://github.com/DEV-endra)

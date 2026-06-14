@@ -572,3 +572,79 @@
 .selectWrapper {
   margin-bottom: 16px;
 }
+
+/* Laser Scanner Animation */
+.laserScanner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 0, 0, 0.8);
+  box-shadow: 0 0 10px 2px rgba(255, 0, 0, 0.6);
+  z-index: 10;
+  animation: scan 2s linear infinite alternate;
+  display: none;
+}
+
+.laserScanner.active {
+  display: block;
+}
+
+@keyframes scan {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+/* CSS Bounding Boxes */
+.boundingBox {
+  position: absolute;
+  border: 3px solid;
+  border-radius: 4px;
+  z-index: 5;
+  cursor: crosshair;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.2s;
+}
+
+.boundingBox:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.boundingBoxLabel {
+  position: absolute;
+  top: -24px;
+  left: -3px;
+  color: white;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  white-space: nowrap;
+  border-radius: 4px 4px 4px 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.boundingBox:hover .boundingBoxLabel {
+  opacity: 1;
+}
+
+.boundingCircle {
+  position: absolute;
+  border: 3px solid;
+  border-radius: 50%;
+  z-index: 5;
+  cursor: crosshair;
+  background: rgba(255, 255, 255, 0.1);
+  transition: background 0.2s;
+  transform: translate(-50%, -50%);
+}
+
+.boundingCircle:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.boundingCircle:hover .boundingBoxLabel {
+  opacity: 1;
+}

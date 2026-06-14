@@ -149,6 +149,12 @@ export default function GradingDashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 10 * 1024 * 1024) {
+      setError('File size exceeds 10MB limit. Please upload a smaller image.');
+      setCustomImage(null);
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       setCustomImage(reader.result);
@@ -381,8 +387,51 @@ export default function GradingDashboard() {
 
           <div className={styles.previewSection}>
             {activeImage ? (
-              <div className={styles.previewImageWrapper}>
+              <div className={styles.previewImageWrapper} style={{ position: 'relative' }}>
                 <img src={activeImage} alt="Inspect preview" className={styles.previewImage} />
+                
+                {/* AI Laser Scanner Overlay */}
+                <div className={`${styles.laserScanner} ${isInspecting ? styles.active : ''}`}></div>
+
+                {/* Detected Bounding Boxes (CSS Overlays) */}
+                {!isInspecting && report?.boxes && report.boxes.map((box, idx) => {
+                  if (box.cx) {
+                    return (
+                      <div
+                        key={idx}
+                        className={styles.boundingCircle}
+                        style={{
+                          left: box.cx,
+                          top: box.cy,
+                          width: box.r * 2,
+                          height: box.r * 2,
+                          borderColor: box.color,
+                        }}
+                      >
+                        <div className={styles.boundingBoxLabel} style={{ backgroundColor: box.color }}>
+                          {box.text}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div
+                      key={idx}
+                      className={styles.boundingBox}
+                      style={{
+                        left: box.x,
+                        top: box.y,
+                        width: box.w,
+                        height: box.h,
+                        borderColor: box.color,
+                      }}
+                    >
+                      <div className={styles.boundingBoxLabel} style={{ backgroundColor: box.color }}>
+                        {box.text}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <p style={{ color: '#767676', fontSize: 14 }}>No product image selected.</p>

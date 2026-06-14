@@ -4,6 +4,7 @@ This directory contains the React/Vite frontend for the Amazon Smart Routing and
 
 ## Features
 - **Smart Routing Module**: An AI-powered dashboard for routing returned inventory to optimal recovery paths (Resale, Donate, Recycle). Includes intelligent search, geospatial mapping, and automated recommendations.
+- **Visual Grading Dashboard**: A computer vision module utilizing Google Gemini to visually inspect products, highlight structural damage with CSS bounding boxes, and assign autonomous condition grades.
 - **Lifecycle Dashboard**: The Digital Product Passport viewer that provides immutable history of a product's journey from warehouse to customer to recovery. Includes role-based views (Customer, Inspector, Admin) and dynamic logistics journey mapping.
 
 ## Development Setup
