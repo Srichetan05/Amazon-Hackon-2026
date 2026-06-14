@@ -37,6 +37,8 @@ function buildInitialInventory() {
  * - getDaysListed() is computed live from the timestamp so it advances
  *   in real time (re-mount or refresh will show the correct elapsed days)
  */
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 export function useInventory() {
   const { LOCAL_RESALE_WINDOW_DAYS } = useConfig();
   const [inventory, setInventory] = useState(() => buildInitialInventory());
@@ -46,7 +48,7 @@ export function useInventory() {
     let active = true;
     async function fetchInventory() {
       try {
-        const res = await fetch('http://localhost:5000/api/inventory');
+        const res = await fetch(`${API_BASE_URL}/api/inventory`);
         if (!res.ok) throw new Error('API server error');
         const data = await res.json();
         if (active) {
@@ -73,7 +75,7 @@ export function useInventory() {
     setInventory(prev => [...prev, entry]);
 
     // Send post request to backend, falling back to localStorage if offline
-    fetch('http://localhost:5000/api/inventory', {
+    fetch(`${API_BASE_URL}/api/inventory`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entry),
@@ -135,7 +137,7 @@ export function useInventory() {
     
     // Call backend
     try {
-      await fetch(`http://localhost:5000/api/inventory/${id}/decision`, {
+      await fetch(`${API_BASE_URL}/api/inventory/${id}/decision`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ decision })

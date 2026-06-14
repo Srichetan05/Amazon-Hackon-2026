@@ -514,26 +514,36 @@ app.post('/api/grade-product', async (req, res) => {
 
     const apiKey = process.env.GEMINI_API_KEY;
     const isDummyKey = !apiKey || apiKey === 'YOUR_GEMINI_API_KEY_HERE' || apiKey.trim() === '';
+    
+    // Check if it's one of our mock SVG presets
+    const isMockPreset = image.startsWith('data:image/svg+xml') || image.includes('utf8');
 
-    if (isDummyKey) {
+    if (isDummyKey || isMockPreset) {
       // Return a simulated high-quality AI inspection result immediately for the demo
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      const isDamaged = name.toLowerCase().includes('shoe') || name.toLowerCase().includes('damaged') || Math.random() > 0.5;
+      const isDamaged = name.toLowerCase().includes('shoe') || name.toLowerCase().includes('damaged') || name.toLowerCase().includes('tv') || Math.random() > 0.5;
+      const isNew = name.toLowerCase().includes('s22') || name.toLowerCase().includes('cable') || name.toLowerCase().includes('speaker');
+      
+      const gradeVal = isDamaged ? 'damaged' : (isNew ? 'new' : 'used');
       const mockResult = {
-        grade: isDamaged ? 'damaged' : 'used',
-        confidence: parseFloat((0.82 + Math.random() * 0.15).toFixed(2)),
-        condition_summary: isDamaged 
+        grade: gradeVal,
+        confidence: parseFloat((0.85 + Math.random() * 0.12).toFixed(2)),
+        condition_summary: gradeVal === 'damaged'
           ? `Visual analysis of "${name}" detects structural damage/tear indicators and opened packaging.`
-          : `Product "${name}" appears functional with light cosmetic scuffs and opened box.`,
-        visible_issues: isDamaged 
+          : (gradeVal === 'used'
+             ? `Product "${name}" appears functional with light cosmetic scuffs and opened box.`
+             : `Product "${name}" is in pristine factory sealed condition. No visible wear or defects.`),
+        visible_issues: gradeVal === 'damaged'
           ? ['localized damage/wear', 'opened retail box packaging']
-          : ['opened box packaging', 'minor cosmetic scuffs'],
-        recommended_action: isDamaged ? 'repair' : 'resell_local',
-        risk_level: isDamaged ? 'medium' : 'low',
-        detailed_grade: isDamaged ? 'damaged_repairable' : 'lightly_used',
-        repairability_score: isDamaged ? 55 : 88,
-        value_recovery_score: isDamaged ? 40 : 75
+          : (gradeVal === 'used'
+             ? ['opened box packaging', 'minor cosmetic scuffs']
+             : ['original box sealed', 'no exterior damage']),
+        recommended_action: gradeVal === 'damaged' ? 'repair' : 'resell_local',
+        risk_level: gradeVal === 'damaged' ? 'medium' : 'low',
+        detailed_grade: gradeVal === 'damaged' ? 'damaged_repairable' : (gradeVal === 'used' ? 'lightly_used' : 'new_sealed'),
+        repairability_score: gradeVal === 'damaged' ? 55 : (gradeVal === 'used' ? 88 : 100),
+        value_recovery_score: gradeVal === 'damaged' ? 40 : (gradeVal === 'used' ? 75 : 98)
       };
       return res.json(mockResult);
     }

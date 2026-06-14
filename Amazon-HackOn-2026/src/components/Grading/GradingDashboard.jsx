@@ -84,12 +84,13 @@ const DEFAULT_CATALOG_PRODUCTS = [
   { id: 'prod-010', name: 'JBL Flip 6 Speaker', category: '🔊 Speakers' }
 ];
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 export default function GradingDashboard() {
   const [selectedProduct, setSelectedProduct] = useState(MOCK_PRESETS[0].name);
   const [selectedCategory, setSelectedCategory] = useState(MOCK_PRESETS[0].category);
   const [presetId, setPresetId] = useState('preset-1');
   const [customImage, setCustomImage] = useState(null);
-  const [showBoundingBoxes, setShowBoundingBoxes] = useState(true);
   const [viewMode, setViewMode] = useState('front'); // front, back, package, close_up
   const [catalogProducts, setCatalogProducts] = useState(DEFAULT_CATALOG_PRODUCTS);
   
@@ -104,13 +105,12 @@ export default function GradingDashboard() {
   const [history, setHistory] = useState([]);
 
   const fileInputRef = useRef(null);
-  const canvasRef = useRef(null);
 
   // Fetch live products from backend on mount
   useEffect(() => {
     async function loadConfig() {
       try {
-        const res = await fetch('http://localhost:5000/api/config');
+        const res = await fetch(`${API_BASE_URL}/api/config`);
         if (res.ok) {
           const data = await res.json();
           if (data.sampleProducts && data.sampleProducts.length > 0) {
@@ -175,7 +175,7 @@ export default function GradingDashboard() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/grade-product', {
+      const response = await fetch(`${API_BASE_URL}/api/grade-product`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -227,39 +227,7 @@ export default function GradingDashboard() {
     }
   }
 
-  // Draw bounding boxes on Canvas
-  useEffect(() => {
-    if (!report || !report.boxes || !showBoundingBoxes) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    report.boxes.forEach(box => {
-      ctx.strokeStyle = box.color;
-      ctx.lineWidth = 3;
-      
-      if (box.cx) {
-        // Draw circle
-        ctx.beginPath();
-        ctx.arc(box.cx, box.cy, box.r, 0, 2 * Math.PI);
-        ctx.stroke();
-      } else {
-        // Draw rectangle
-        ctx.strokeRect(box.x, box.y, box.w, box.h);
-      }
-
-      // Label background
-      ctx.fillStyle = box.color;
-      ctx.font = 'bold 9px sans-serif';
-      const labelX = box.x || (box.cx - 20);
-      const labelY = box.y ? (box.y - 4) : (box.cy - box.r - 4);
-      
-      ctx.fillRect(labelX, labelY - 9, ctx.measureText(box.text).width + 6, 12);
-      ctx.fillStyle = 'white';
-      ctx.fillText(box.text, labelX + 3, labelY);
-    });
-  }, [report, showBoundingBoxes]);
 
   // Save report to database & generate passport link
   async function handleConfirmAndRoute() {
@@ -268,7 +236,7 @@ export default function GradingDashboard() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/grading-results', {
+      const response = await fetch(`${API_BASE_URL}/api/grading-results`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -415,29 +383,13 @@ export default function GradingDashboard() {
             {activeImage ? (
               <div className={styles.previewImageWrapper}>
                 <img src={activeImage} alt="Inspect preview" className={styles.previewImage} />
-                <canvas
-                  ref={canvasRef}
-                  width="300"
-                  height="250"
-                  className={styles.overlayCanvas}
-                  style={{ display: showBoundingBoxes ? 'block' : 'none' }}
-                />
               </div>
             ) : (
               <p style={{ color: '#767676', fontSize: 14 }}>No product image selected.</p>
             )}
           </div>
 
-          <div className={styles.confirmPanel} style={{ borderTop: 'none', paddingTop: 0 }}>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={showBoundingBoxes}
-                onChange={(e) => setShowBoundingBoxes(e.target.checked)}
-              />
-              Show Defect Heatmaps &amp; Bounding Boxes
-            </label>
-
+          <div className={styles.confirmPanel} style={{ borderTop: 'none', paddingTop: 0, justifyContent: 'center' }}>
             <button
               type="button"
               className={styles.inspectBtn}

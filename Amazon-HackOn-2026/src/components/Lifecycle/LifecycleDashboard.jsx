@@ -7,6 +7,8 @@ const ROLE_TABS = [
   { key: 'admin', label: 'Operations & Admin' },
 ];
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 export default function LifecycleDashboard() {
   const [items, setItems] = useState([]);
   const [selectedId, setSelectedId] = useState('');
@@ -19,7 +21,7 @@ export default function LifecycleDashboard() {
   useEffect(() => {
     async function loadList() {
       try {
-        const res = await fetch('http://localhost:5000/api/lifecycle');
+        const res = await fetch(`${API_BASE_URL}/api/lifecycle`);
         if (!res.ok) throw new Error('Failed to fetch lifecycle list');
         const data = await res.json();
         setItems(data);
@@ -46,7 +48,7 @@ export default function LifecycleDashboard() {
       setIsLoading(true);
       setError('');
       try {
-        const res = await fetch(`http://localhost:5000/api/lifecycle/${selectedId}`);
+        const res = await fetch(`${API_BASE_URL}/api/lifecycle/${selectedId}`);
         if (!res.ok) throw new Error('Passport not found');
         const data = await res.json();
         setPassport(data);
@@ -261,11 +263,19 @@ export default function LifecycleDashboard() {
                 <h3 className={styles.qrTitle}>Scan for Public Passport</h3>
                 <div className={styles.qrImageWrapper}>
                   <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/?id=${passport.id}`)}`}
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`${window.location.origin}/?id=${passport.id}`)}`}
                     alt="QR Code"
                     className={styles.qrImage}
                   />
                 </div>
+                <a 
+                  href={`/?id=${passport.id}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className={styles.passportTestLink}
+                >
+                  Open Public Passport View 🔗
+                </a>
                 <div className={styles.dppPill}>
                   DPP: {passport.publicId || passport.id.slice(0, 13)}
                 </div>
