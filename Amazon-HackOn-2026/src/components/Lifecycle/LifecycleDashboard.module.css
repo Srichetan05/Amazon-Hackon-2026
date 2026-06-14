@@ -352,6 +352,7 @@
 .timelineItem:last-child::before {
   display: none;
 }
+
 .timelineItem:last-child {
   padding-bottom: 0;
 }
@@ -518,8 +519,13 @@
 }
 
 @keyframes dashMarch {
-  0% { background-position: 0 0; }
-  100% { background-position: 16px 0; }
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 16px 0;
+  }
 }
 
 .arrowDashed::after {
@@ -556,4 +562,86 @@
   to {
     stroke-dashoffset: -24;
   }
+}
+
+/* ── AI Summary & Sustainability Recommendation Cards ── */
+.aiSummarySection {
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.aiSummaryCard {
+  background: #F4F6F6;
+  border-left: 4px solid #007185;
+  padding: 16px;
+  border-radius: 4px 8px 8px 4px;
+  text-align: left;
+}
+
+.conditionSummaryText {
+  font-size: 14px;
+  color: #0F1111;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.issuesWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.issuesTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #565959;
+  text-transform: uppercase;
+}
+
+.issuesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.issueTag {
+  background: #FFFFFF;
+  border: 1px solid #D5D9D9;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #0F1111;
+}
+
+.sustainabilityCard {
+  background: #E8F4F1;
+  border: 1px solid #C5E3DB;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.sustainabilityCardTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #007185;
+  margin-bottom: 10px;
+}
+
+.sustainabilityCardContent {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.recIcon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.recText {
+  font-size: 13px;
+  color: #2F3B38;
+  line-height: 1.5;
 }

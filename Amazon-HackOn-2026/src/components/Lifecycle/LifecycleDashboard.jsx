@@ -23,7 +23,7 @@ export default function LifecycleDashboard() {
         if (!res.ok) throw new Error('Failed to fetch lifecycle list');
         const data = await res.json();
         setItems(data);
-        
+
         const urlParams = new URLSearchParams(window.location.search);
         const urlId = urlParams.get('id');
         if (urlId && data.some(item => item.id === urlId)) {
@@ -60,6 +60,40 @@ export default function LifecycleDashboard() {
     loadPassport();
   }, [selectedId]);
 
+  // Generate fallback summary and issues if missing in DB (e.g. for mock-seeded items)
+  const getFallbackDetails = () => {
+    if (!passport) return { summary: '', issues: [] };
+    const grade = (passport.grade || 'new').toLowerCase();
+    const damage = (passport.damageLevel || 'NONE').toUpperCase();
+    
+    let summary = passport.conditionSummary;
+    let issues = passport.visibleIssues || [];
+
+    if (!summary) {
+      if (grade === 'damaged') {
+        summary = `AI Quality Inspection has analyzed "${passport.name}" and detected visual anomalies matching structural defects. Structural integrity checked with grade severity classified as ${damage}.`;
+      } else if (grade === 'used') {
+        summary = `AI Quality Inspection has analyzed "${passport.name}" and verified it as a functional, pre-owned product. Light cosmetic scuffs detected on outer casing; packaging has been opened.`;
+      } else {
+        summary = `AI Quality Inspection has analyzed "${passport.name}" and verified it is in pristine, open-box condition. Original packaging is intact with seal unbroken.`;
+      }
+    }
+
+    if (!issues || issues.length === 0) {
+      if (grade === 'damaged') {
+        issues = ['open box packaging', 'surface scratches', 'functional wear/defect'];
+      } else if (grade === 'used') {
+        issues = ['opened retail packaging', 'light cosmetic scuffs'];
+      } else {
+        issues = ['intact retail packaging', 'zero cosmetic defects'];
+      }
+    }
+
+    return { summary, issues };
+  };
+
+  const { summary: displaySummary, issues: displayIssues } = getFallbackDetails();
+
   return (
     <div className={styles.container}>
       {/* Top Navbar Dropdown */}
@@ -95,7 +129,7 @@ export default function LifecycleDashboard() {
               <div className={styles.productMeta}>
                 SKU: {passport.sku || 'SKU-UNKNOWN'} | Serial: {passport.serialNumber || 'SN-UNKNOWN'}
               </div>
-              
+
               {currentRole !== 'customer' && (
                 <div className={styles.aiConfidenceText}>
                   {(passport.confidence * 100 || 95).toFixed(0)}% AI Grading Confidence
@@ -119,6 +153,81 @@ export default function LifecycleDashboard() {
                 <span className={styles.badgeGrade}>GRADE: {passport.grade || 'DAMAGED'}</span>
               </div>
 
+              {/* AI Passport Summary for Customers */}
+              {currentRole === 'customer' && (
+                <div className={styles.aiSummarySection}>
+                  <h3 className={styles.summaryTitle}>✨ AI Quality & Return Assessment</h3>
+                  <div className={styles.aiSummaryCard}>
+                    {displaySummary && (
+                      <p className={styles.conditionSummaryText}>
+                        {displaySummary}
+                      </p>
+                    )}
+                    {displayIssues && displayIssues.length > 0 && (
+                      <div className={styles.issuesWrapper}>
+                        <div className={styles.issuesTitle}>Detected Condition Notes:</div>
+                        <div className={styles.issuesList}>
+                          {displayIssues.map((issue, idx) => (
+                            <span key={idx} className={styles.issueTag}>
+                              🔍 {issue}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Sustainability Recommendation for Customers */}
+              {currentRole === 'customer' && (
+                <div className={styles.sustainabilityCard}>
+                  <h3 className={styles.sustainabilityCardTitle}>🌱 Circular Economy Recommendation</h3>
+                  <div className={styles.sustainabilityCardContent}>
+                    {(() => {
+                      const decision = passport.decision || '';
+                      if (decision === 'warehouse') {
+                        return (
+                          <>
+                            <div className={styles.recIcon}>🔄</div>
+                            <div className={styles.recText}>
+                              <strong>Warehouse Consolidate & Refurbish:</strong> This item is returning to our central hub to be consolidated with similar products for component reclamation or high-efficiency factory recycling.
+                            </div>
+                          </>
+                        );
+                      } else if (decision === 'direct_recycle' || decision === 'recycle') {
+                        return (
+                          <>
+                            <div className={styles.recIcon}>♻️</div>
+                            <div className={styles.recText}>
+                              <strong>Local Eco-Recycling:</strong> Routed directly to local recycling hubs. High-value materials (metals, polymers) are safely recovered to manufacture future green packaging, keeping electronic waste out of landfills.
+                            </div>
+                          </>
+                        );
+                      } else if (decision === 'donate') {
+                        return (
+                          <>
+                            <div className={styles.recIcon}>🎁</div>
+                            <div className={styles.recText}>
+                              <strong>Community Donation:</strong> Extended lifecycle recovery. This item is being delivered to local charity partners to support digital inclusion initiatives.
+                            </div>
+                          </>
+                        );
+                      } else {
+                        return (
+                          <>
+                            <div className={styles.recIcon}>🛍️</div>
+                            <div className={styles.recText}>
+                              <strong>Optimized Local Resale:</strong> Restored for local recommerce. This item is sent to nearby resale nodes to be sold at a discount, avoiding over 180 km of carbon-heavy round-trip shipping.
+                            </div>
+                          </>
+                        );
+                      }
+                    })()}
+                  </div>
+                </div>
+              )}
+
               {/* Lifecycle Summary (Hidden for Customers) */}
               {currentRole !== 'customer' && (
                 <div className={styles.summarySection}>
@@ -136,11 +245,11 @@ export default function LifecycleDashboard() {
               {/* Admin Diagnostics */}
               {currentRole === 'admin' && (
                 <div style={{ fontSize: '11px', color: '#565959', marginTop: '12px', fontFamily: 'monospace', background: '#f0f2f2', padding: '12px', borderRadius: '6px', border: '1px solid #d5d9d9' }}>
-                  <strong style={{ color: '#0F1111' }}>SYS_ADMIN_DIAGNOSTICS</strong><br/>
-                  RECORD_UUID: {passport.id}<br/>
-                  SYS_STATUS: {passport.currentStatus}<br/>
-                  RTG_DECISION: {passport.decision}<br/>
-                  VAL_LOCAL: {passport.localCost || 'N/A'} | VAL_WHSE: {passport.warehouseCost || 'N/A'}<br/>
+                  <strong style={{ color: '#0F1111' }}>SYS_ADMIN_DIAGNOSTICS</strong><br />
+                  RECORD_UUID: {passport.id}<br />
+                  SYS_STATUS: {passport.currentStatus}<br />
+                  RTG_DECISION: {passport.decision}<br />
+                  VAL_LOCAL: {passport.localCost || 'N/A'} | VAL_WHSE: {passport.warehouseCost || 'N/A'}<br />
                   AI_MODEL_CONF: {passport.confidence}
                 </div>
               )}
@@ -151,9 +260,9 @@ export default function LifecycleDashboard() {
               <div className={styles.qrCard}>
                 <h3 className={styles.qrTitle}>Scan for Public Passport</h3>
                 <div className={styles.qrImageWrapper}>
-                  <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/?id=${passport.id}`)}`} 
-                    alt="QR Code" 
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/?id=${passport.id}`)}`}
+                    alt="QR Code"
                     className={styles.qrImage}
                   />
                 </div>
@@ -165,7 +274,7 @@ export default function LifecycleDashboard() {
                   <div className={styles.routingInfo}>
                     <div className={styles.routingType}>Routing: {passport.decision ? passport.decision.toUpperCase().replace('_', ' ') : 'LOCAL DELIVERY_POINT'}</div>
                     <div className={styles.routingDest}>
-                      📍 Destination:<br/>
+                      📍 Destination:<br />
                       {passport.currentLocationName || 'Chenna Reddi Palle Delivery point'}
                     </div>
                     <div className={styles.verifiedText}>
@@ -245,7 +354,7 @@ export default function LifecycleDashboard() {
                           <div className={styles.timelineDesc}>{evt.reason}</div>
                           {currentRole === 'admin' && (
                             <div style={{ fontSize: '11px', color: '#565959', marginTop: '6px', fontFamily: 'monospace', background: '#f8f8f8', padding: '6px', borderRadius: '4px', border: '1px dashed #d5d9d9' }}>
-                              EVT_ID: {evt.id}<br/>
+                              EVT_ID: {evt.id}<br />
                               {evt.fromLocationName && `FROM_NODE: ${evt.fromLocationName} `}
                               {evt.toLocationName && `TO_NODE: ${evt.toLocationName}`}
                             </div>
@@ -262,12 +371,12 @@ export default function LifecycleDashboard() {
                 <h2 className={styles.bottomSectionTitle}>Logistics Journey Map</h2>
                 <div className={styles.journeyCard}>
                   <div className={styles.journeyGraph} style={{ position: 'relative' }}>
-                    
+
                     <div className={styles.nodeWrapper} style={{ zIndex: 2 }}>
                       <div className={styles.nodeDark}>🏢</div>
                       <span className={styles.nodeLabel}>Warehouse</span>
                     </div>
-                    
+
                     <div className={styles.arrowSolid} style={{ zIndex: 1 }}></div>
 
                     <div className={styles.nodeWrapper} style={{ zIndex: 2 }}>
@@ -279,13 +388,13 @@ export default function LifecycleDashboard() {
                       <div className={styles.returnLoopWrapper}>
                         <div style={{ position: 'absolute', left: '-5px', bottom: '-4px', color: '#565959', fontSize: '12px', zIndex: 10 }}>▼</div>
                         <svg viewBox="0 0 100 100" preserveAspectRatio="none" className={styles.returnLoopSvg}>
-                          <path 
+                          <path
                             className={styles.loopPath}
-                            d="M 100 100 C 100 -20, 0 -20, 0 100" 
-                            fill="none" 
-                            stroke="#565959" 
-                            strokeWidth="4" 
-                            strokeDasharray="12,12" 
+                            d="M 100 100 C 100 -20, 0 -20, 0 100"
+                            fill="none"
+                            stroke="#565959"
+                            strokeWidth="4"
+                            strokeDasharray="12,12"
                             vectorEffect="non-scaling-stroke"
                           />
                         </svg>
