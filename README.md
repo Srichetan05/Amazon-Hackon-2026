@@ -33,6 +33,9 @@ An advanced computer vision dashboard for warehouse inspectors.
 3. Start the backend server: `npm run dev` in the `/backend` directory.
 4. Start the frontend Vite app: `npm run dev` in the `frontend` directory.
 
+## Live URL
+[http://amazonhackon2026.s3-website.ap-south-1.amazonaws.com/](http://amazonhackon2026.s3-website.ap-south-1.amazonaws.com/)
+
 ## Contributors
-- [G.SriChetan Reddy](https://github.com/Srichetan05)
+- [G.Srichetan Reddy](https://github.com/Srichetan05)
 - [Devendra Chand](https://github.com/DEV-endra)
