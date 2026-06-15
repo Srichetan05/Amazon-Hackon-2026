@@ -1,0 +1,662 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 0 32px 0;
+  font-family: 'Amazon Ember', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  color: #0F1111;
+  background: #FFFFFF;
+  min-height: 100vh;
+}
+
+/* ── Top Navbar Dropdown ── */
+.topNavbar {
+  background: #131921;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.navLabel {
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.navSelect {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #D5D9D9;
+  background: #FFFFFF;
+  font-size: 14px;
+  color: #0F1111;
+  min-width: 300px;
+  cursor: pointer;
+}
+
+.errorAlert {
+  margin: 0 24px 24px;
+  padding: 16px;
+  background: rgba(177, 39, 4, 0.1);
+  color: #B12704;
+  border: 1px solid #B12704;
+  border-radius: 8px;
+}
+
+.loadingState {
+  margin: 0 24px;
+  padding: 48px;
+  text-align: center;
+  color: #565959;
+  background: #F0F2F2;
+  border-radius: 8px;
+}
+
+.dashboardGrid {
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ── Top Section (2 columns) ── */
+.topSection {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.infoColumn {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.dppLabel {
+  color: #007185;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.productTitle {
+  font-size: 32px;
+  font-weight: 400;
+  color: #0F1111;
+  margin: 0 0 4px 0;
+}
+
+.productMeta {
+  color: #565959;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.aiConfidenceText {
+  color: #007185;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.conditionBox {
+  background: #F8F8F8;
+  border: 1px solid #D5D9D9;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.conditionLabel {
+  font-size: 12px;
+  color: #565959;
+  margin-bottom: 8px;
+}
+
+.conditionValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0F1111;
+  margin-bottom: 8px;
+}
+
+.severityText {
+  color: #B12704;
+  font-size: 14px;
+}
+
+.badgeRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.badgeStatus {
+  border: 1px solid #007185;
+  color: #007185;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.badgeGrade {
+  border: 1px solid #B12704;
+  color: #B12704;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.summarySection {
+  margin-top: 16px;
+}
+
+.summaryTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F1111;
+  margin-bottom: 12px;
+}
+
+.summaryList {
+  margin: 0;
+  padding-left: 20px;
+  color: #0F1111;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── Right QR Column ── */
+.qrColumn {
+  flex: 1;
+}
+
+.qrCard {
+  border: 1px solid #D5D9D9;
+  border-radius: 8px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #FFFFFF;
+}
+
+.qrTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #0F1111;
+}
+
+.qrImageWrapper {
+  margin-bottom: 12px;
+}
+
+.qrImage {
+  width: 200px;
+  height: 200px;
+  display: block;
+}
+
+.dppPill {
+  border: 1px solid #007185;
+  color: #007185;
+  padding: 4px 16px;
+  font-size: 12px;
+  border-radius: 16px;
+  font-family: var(--mono);
+  margin-bottom: 24px;
+}
+
+.routingInfo {
+  width: 100%;
+  text-align: left;
+}
+
+.routingType {
+  color: #007185;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.routingDest {
+  color: #0F1111;
+  font-size: 14px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.verifiedText {
+  color: #565959;
+  font-size: 12px;
+}
+
+.qrDivider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #D5D9D9;
+  margin: 24px 0;
+}
+
+.impactSection {
+  width: 100%;
+}
+
+.impactTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F1111;
+  margin-bottom: 12px;
+}
+
+.impactRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.impactLabel {
+  color: #565959;
+}
+
+.impactValue {
+  color: #0F1111;
+  font-weight: 700;
+}
+
+/* ── Bottom Section ── */
+.bottomSection {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tabsRow {
+  display: flex;
+  border-bottom: 1px solid #D5D9D9;
+  background: #F8F8F8;
+  padding: 0 16px;
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  padding: 16px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #007185;
+  cursor: pointer;
+  position: relative;
+}
+
+.tabBtnActive {
+  color: #0F1111;
+}
+
+.tabBtnActive::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #C45500;
+}
+
+.bottomGrid {
+  display: flex;
+  gap: 32px;
+}
+
+.bottomSectionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #C45500;
+  margin-bottom: 24px;
+}
+
+/* Timeline */
+.timelineColumn {
+  flex: 1;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 16px;
+  position: relative;
+  padding-bottom: 32px;
+}
+
+/* OCD LINE FIX */
+.timelineItem::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  bottom: 0;
+  width: 2px;
+  background: #D5D9D9;
+  z-index: 1;
+}
+
+.timelineItem:last-child::before {
+  display: none;
+}
+
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+.timelineIconWrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #007185;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.timelineIcon {
+  font-size: 16px;
+}
+
+.timelineContent {
+  flex: 1;
+  padding-top: 4px;
+}
+
+.timelineHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.timelineLabel {
+  font-weight: 700;
+  font-size: 14px;
+  color: #0F1111;
+}
+
+.timelineDate {
+  font-size: 12px;
+  color: #565959;
+}
+
+.timelineDesc {
+  font-size: 14px;
+  color: #565959;
+}
+
+/* Journey Map */
+.journeyColumn {
+  flex: 1;
+}
+
+.journeyCard {
+  border: 1px solid #D5D9D9;
+  border-radius: 8px;
+  padding: 48px 24px;
+  background: #FFFFFF;
+}
+
+.journeyGraph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nodeWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.nodeDark {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #131921;
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.nodeOrange {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #FF9900;
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.nodeTeal {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #007185;
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.nodeGreen {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #067D62;
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.nodeRed {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #B12704;
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.nodeLabel {
+  font-size: 14px;
+  color: #565959;
+}
+
+.arrowSolid {
+  flex: 1;
+  height: 4px;
+  background: #565959;
+  position: relative;
+  margin: -24px 16px 0;
+}
+
+.arrowSolid::after {
+  content: '▶';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #565959;
+  font-size: 14px;
+}
+
+.arrowDashed {
+  flex: 1;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, #007185, #007185 8px, transparent 8px, transparent 16px);
+  background-size: 16px 100%;
+  position: relative;
+  margin: -24px 16px 0;
+  animation: dashMarch 1s linear infinite;
+}
+
+@keyframes dashMarch {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 16px 0;
+  }
+}
+
+.arrowDashed::after {
+  content: '▶';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #007185;
+  font-size: 14px;
+}
+
+.returnLoopWrapper {
+  position: absolute;
+  top: -50px;
+  left: 30px;
+  right: 30px;
+  height: 60px;
+  z-index: 0;
+}
+
+.returnLoopSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.loopPath {
+  animation: svgDashMarch 1s linear infinite;
+}
+
+@keyframes svgDashMarch {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* ── AI Summary & Sustainability Recommendation Cards ── */
+.aiSummarySection {
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.aiSummaryCard {
+  background: #F4F6F6;
+  border-left: 4px solid #007185;
+  padding: 16px;
+  border-radius: 4px 8px 8px 4px;
+  text-align: left;
+}
+
+.conditionSummaryText {
+  font-size: 14px;
+  color: #0F1111;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.issuesWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.issuesTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #565959;
+  text-transform: uppercase;
+}
+
+.issuesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.issueTag {
+  background: #FFFFFF;
+  border: 1px solid #D5D9D9;
+  border-radius: 12px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #0F1111;
+}
+
+.sustainabilityCard {
+  background: #E8F4F1;
+  border: 1px solid #C5E3DB;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.sustainabilityCardTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #007185;
+  margin-bottom: 10px;
+}
+
+.sustainabilityCardContent {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.recIcon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.recText {
+  font-size: 13px;
+  color: #2F3B38;
+  line-height: 1.5;
+}
+
+.passportTestLink {
+  color: #007185;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 700;
+  margin-bottom: 16px;
+  display: inline-block;
+  transition: color 0.15s, text-decoration 0.15s;
+}
+
+.passportTestLink:hover {
+  color: #c45500;
+  text-decoration: underline;
+}
